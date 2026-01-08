@@ -1,0 +1,482 @@
+import { motion } from 'motion/react';
+import { ArrowLeft, ExternalLink, Github, Calendar, Users, Star } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useEffect } from 'react';
+
+interface ProjectDetailProps {
+  project: {
+    id: number;
+    title: string;
+    description: string;
+    image: string;
+    tech: string[];
+    color: string;
+    fullDescription: string;
+    challenges: string[];
+    solutions: string[];
+    images: string[];
+    imageDescriptions?: string[];
+    pdfUrl?: string;
+    pdfTitle?: string;
+    pdfDescription?: string;
+    liveUrl?: string;
+    githubUrl?: string;
+    team: string;
+    status: string;
+  };
+  onBack: () => void;
+}
+
+export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    // First, immediately jump to top to ensure we start there
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Then use smooth scrolling for any subsequent scroll-to-top
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 10);
+  }, [project.id]); // Also depend on project.id to ensure it triggers when switching projects
+
+  return (
+    <div className="min-h-screen bg-cream relative">
+      {/* Background Effects */}
+      <div className="absolute inset-0 dither-bg opacity-10" />
+      
+      {/* Back Button */}
+      <motion.button
+        onClick={() => {
+          // Call the onBack function first
+          onBack();
+          
+          // Then ensure we scroll to top after navigation
+          setTimeout(() => {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }, 50);
+        }}
+        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full pixel-border bg-cream/90 backdrop-blur-sm text-deep-slate hover:bg-deep-slate hover:text-cream transition-all duration-300"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <ArrowLeft size={16} />
+        <span className="text-sm">Back to Projects</span>
+      </motion.button>
+
+      {/* Hero Section */}
+      <motion.section
+        className="pt-24 pb-16 px-6"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Project Info */}
+            <div>
+              <motion.div
+                className="flex items-center gap-2 mb-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div 
+                  className="w-4 h-4 pixel-corners"
+                  style={{ backgroundColor: project.color }}
+                />
+                <span className="text-sm text-deep-slate/70 uppercase tracking-wider">
+                  {project.status}
+                </span>
+              </motion.div>
+
+              <motion.h1
+                className="text-4xl md:text-5xl font-bold text-deep-slate mb-6 leading-tight"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                {project.title}
+              </motion.h1>
+
+              <motion.p
+                className="text-lg text-deep-slate/80 mb-8 leading-relaxed"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                {project.fullDescription}
+              </motion.p>
+
+              {/* Project Meta */}
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                <div className="flex items-center gap-2 text-sm text-deep-slate/70">
+                  <Users size={16} />
+                  <span>{project.team}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-deep-slate/70">
+                  <Star size={16} />
+                  <span>Featured Project</span>
+                </div>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div
+                className="flex flex-wrap gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                {project.liveUrl && (
+                  <motion.a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 pixel-border"
+                    style={{
+                      backgroundColor: project.color,
+                      color: '#F4F1DE'
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <ExternalLink size={16} />
+                    View Live
+                  </motion.a>
+                )}
+                {project.githubUrl && (
+                  <motion.a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 pixel-border bg-transparent hover:bg-deep-slate hover:text-cream"
+                    style={{
+                      color: '#3D405B',
+                      borderColor: '#3D405B'
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Github size={16} />
+                    View Code
+                  </motion.a>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Project Image */}
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <div className="aspect-video rounded-lg overflow-hidden pixel-border bg-deep-slate/5">
+                <ImageWithFallback
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Decorative elements */}
+              <motion.div
+                className="absolute -top-4 -right-4 w-8 h-8 pixel-corners"
+                style={{ backgroundColor: project.color }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Tech Stack */}
+      <motion.section
+        className="py-16 px-6"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-deep-slate mb-8 text-center">
+            Technology Stack
+          </h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {project.tech.map((tech, index) => (
+              <motion.div
+                key={tech}
+                className="px-4 py-2 rounded-full pixel-border bg-cream/80 text-deep-slate text-sm font-medium"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ 
+                  scale: 1.1,
+                  backgroundColor: project.color,
+                  color: '#F4F1DE'
+                }}
+              >
+                {tech}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Project Details */}
+      <motion.section
+        className="py-16 px-6"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Challenges */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="text-xl font-bold text-deep-slate mb-6">
+                Challenges & Problems
+              </h3>
+              <div className="space-y-4">
+                {project.challenges.map((challenge, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex items-start gap-3"
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div 
+                      className="w-2 h-2 pixel-corners mt-2 flex-shrink-0"
+                      style={{ backgroundColor: project.color }}
+                    />
+                    <p className="text-deep-slate/80 text-sm leading-relaxed">
+                      {challenge}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Solutions */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="text-xl font-bold text-deep-slate mb-6">
+                Solutions & Approach
+              </h3>
+              <div className="space-y-4">
+                {project.solutions.map((solution, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex items-start gap-3"
+                    initial={{ opacity: 0, x: 10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div 
+                      className="w-2 h-2 pixel-corners mt-2 flex-shrink-0"
+                      style={{ backgroundColor: '#81B29A' }}
+                    />
+                    <p className="text-deep-slate/80 text-sm leading-relaxed">
+                      {solution}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* PDF Viewer Section */}
+      {project.pdfUrl && (
+        <motion.section
+          className="py-16 px-6"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold text-deep-slate mb-8 text-center">
+              {project.pdfTitle || "Project Documentation"}
+            </h2>
+            {project.pdfDescription && (
+              <p className="text-lg text-deep-slate/80 max-w-2xl mx-auto text-center leading-relaxed mb-8">
+                {project.pdfDescription}
+              </p>
+            )}
+            
+            {/* PDF Embed */}
+            <motion.div
+              className="relative bg-white rounded-lg pixel-border overflow-hidden shadow-lg"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <iframe
+                src={`${project.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH`}
+                width="100%"
+                height="600"
+                title={project.pdfTitle || "Project PDF"}
+                className="border-0"
+                style={{ minHeight: '400px' }}
+              />
+            </motion.div>
+
+            <motion.div
+              className="text-center mt-6"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-sm text-deep-slate/60">
+                Use your browser's PDF controls to navigate, zoom, and search within the document
+              </p>
+            </motion.div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* Additional Images */}
+      {project.images.length > 0 && (
+        <motion.section
+          className="py-16 px-6"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-deep-slate mb-12 text-center">
+              Project Gallery
+            </h2>
+            <div className="space-y-12">
+              {project.images.map((image, index) => (
+                <motion.div
+                  key={index}
+                  className="flex flex-col items-center"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  <motion.div
+                    className="flex justify-center rounded-lg overflow-hidden pixel-border mb-6"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ImageWithFallback
+                      src={image}
+                      alt={`${project.title} - Image ${index + 1}`}
+                      className="object-contain"
+                      style={{ 
+                        maxWidth: '100%',
+                        maxHeight: '500px',
+                        height: 'auto',
+                        width: 'auto'
+                      }}
+                    />
+                  </motion.div>
+                  
+                  {/* Image Description */}
+                  {project.imageDescriptions && project.imageDescriptions[index] && (
+                    <motion.div
+                      className="text-center max-w-2xl"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="flex items-center justify-center mb-3">
+                        <div 
+                          className="w-3 h-3 pixel-corners mr-3"
+                          style={{ backgroundColor: project.color }}
+                        />
+                        <span className="text-sm font-medium text-deep-slate/70 uppercase tracking-wider">
+                          Image {index + 1}
+                        </span>
+                        <div 
+                          className="w-3 h-3 pixel-corners ml-3"
+                          style={{ backgroundColor: project.color }}
+                        />
+                      </div>
+                      <p className="text-deep-slate/80 text-base leading-relaxed">
+                        {project.imageDescriptions[index]}
+                      </p>
+                    </motion.div>
+                  )}
+                  
+                  {/* Decorative divider for all but last image */}
+                  {index < project.images.length - 1 && (
+                    <motion.div
+                      className="mt-8 flex items-center justify-center w-full"
+                      initial={{ opacity: 0, scaleX: 0 }}
+                      whileInView={{ opacity: 1, scaleX: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="h-px bg-gradient-to-r from-transparent via-deep-slate/20 to-transparent w-full max-w-md" />
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none z-10">
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 rounded-full"
+            style={{ 
+              backgroundColor: project.color,
+              left: `${20 + Math.random() * 60}%`,
+              top: `${20 + Math.random() * 60}%`
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0, 0.8, 0],
+              scale: [1, 1.5, 1]
+            }}
+            transition={{
+              duration: 4 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
