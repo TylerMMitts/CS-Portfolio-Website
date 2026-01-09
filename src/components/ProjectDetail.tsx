@@ -133,44 +133,54 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
 
               {/* Action Buttons */}
               <motion.div
-                className="flex flex-wrap gap-4"
+                className="flex flex-wrap gap-4 relative z-20"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
                 {project.liveUrl && (
-                  <motion.a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 pixel-border"
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(project.liveUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium pixel-border cursor-pointer relative z-30"
                     style={{
                       backgroundColor: project.color,
-                      color: '#F4F1DE'
+                      color: '#F4F1DE',
+                      pointerEvents: 'auto'
                     }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     <ExternalLink size={16} />
                     View Live
-                  </motion.a>
+                  </button>
                 )}
                 {project.githubUrl && (
-                  <motion.a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 pixel-border bg-transparent hover:bg-deep-slate hover:text-cream"
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(project.githubUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium pixel-border bg-transparent cursor-pointer relative z-30"
                     style={{
                       color: '#3D405B',
-                      borderColor: '#3D405B'
+                      borderColor: '#3D405B',
+                      pointerEvents: 'auto'
                     }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#3D405B';
+                      e.currentTarget.style.color = '#F4F1DE';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#3D405B';
+                    }}
                   >
                     <Github size={16} />
                     View Code
-                  </motion.a>
+                  </button>
                 )}
               </motion.div>
             </div>

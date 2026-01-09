@@ -5,9 +5,10 @@ import { featuredProjects } from '../data/projects';
 
 interface ProjectsSectionProps {
   onProjectClick: (projectId: number) => void;
+  onViewAllClick: () => void;
 }
 
-export function ProjectsSection({ onProjectClick }: ProjectsSectionProps) {
+export function ProjectsSection({ onProjectClick, onViewAllClick }: ProjectsSectionProps) {
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
 
   return (
@@ -143,6 +144,34 @@ export function ProjectsSection({ onProjectClick }: ProjectsSectionProps) {
             </motion.div>
           ))}
         </div>
+
+        {/* View All Button */}
+        <motion.div 
+          className="flex justify-center"
+          style={{ marginTop: '5em' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <motion.button
+            onClick={onViewAllClick}
+            className="px-8 py-4 rounded-lg font-bold text-lg pixel-border bg-cream/80 backdrop-blur-sm"
+            style={{ 
+              color: '#3D405B',
+              borderColor: '#E07A5F'
+            }}
+            whileHover={{ 
+              backgroundColor: '#E07A5F',
+              color: 'white',
+              scale: 1.05,
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            View All Projects →
+          </motion.button>
+        </motion.div>
       </div>
 
       {/* Floating decorative elements */}

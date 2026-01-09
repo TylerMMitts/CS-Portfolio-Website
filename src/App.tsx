@@ -192,7 +192,10 @@ export default function App() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true, margin: "-100px" }}
         >
-          <ProjectsSection onProjectClick={handleProjectClick} />
+          <ProjectsSection 
+            onProjectClick={handleProjectClick}
+            onViewAllClick={handleExploreClick}
+          />
         </motion.div>
 
         {/* Contact Section */}
@@ -228,7 +231,7 @@ export default function App() {
               transition={{ duration: 2, repeat: Infinity, delay: 0 }}
             />
             <span className="text-deep-slate/70 text-sm">
-              © 2025 Tyler Mitts
+              © 2026 Tyler Mitts
             </span>
             <motion.div
               className="w-2 h-2 rounded-full"

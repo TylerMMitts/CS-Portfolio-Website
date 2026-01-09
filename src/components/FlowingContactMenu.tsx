@@ -29,7 +29,7 @@ const contactItems: ContactItem[] = [
     id: 'resume',
     label: 'Resume',
     icon: <FileText className="w-4 h-4 md:w-5 md:h-5" />,
-    href: '/assets/TylerMittsResume2025.pdf',
+    href: '/assets/TylerMittsResume2026.pdf',
     external: true
   }
 ];

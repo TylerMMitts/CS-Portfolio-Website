@@ -212,6 +212,23 @@ CONNECTED`}
 }
 
 export function ASCIIDecorations() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return null;
+  }
+
   return (
     <>
       {/* Top Left */}
