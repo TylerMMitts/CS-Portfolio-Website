@@ -21,7 +21,7 @@ const terminalContent = [
   "that people actually use.",
   "",
   "tyler@portfolio:~$ ls skills/",
-  "Software.js    Database.sql    UI.css    ImageProcessing.py    Creativity.gif",
+  "Software.js    Database.sql    UI.css    ComputerVision.py    Creativity.gif",
   "",
   "tyler@portfolio:~$ █"
 ];

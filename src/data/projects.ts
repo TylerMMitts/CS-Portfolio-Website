@@ -14,6 +14,9 @@ export interface Project {
   pdfUrl?: string; // Optional PDF file URL
   pdfTitle?: string; // Optional PDF title
   pdfDescription?: string; // Optional PDF description
+  videoUrl?: string; // Optional video file URL
+  videoTitle?: string; // Optional video title
+  videoDescription?: string; // Optional video description
   liveUrl?: string;
   githubUrl?: string;
   duration: string;
@@ -164,6 +167,126 @@ export const projects: Project[] = [
     pdfUrl: "/assets/depth_report.pdf",
   },
   {
+  id: 16,
+  title: "Vision-Guided CNC Automation",
+  description: "YOLOv10-seg computer vision system for automated poker chip inlay drilling with sub-500ms detection and GRBL integration",
+  image: "/assets/chippic.jpg",
+  tech: [
+    "Python",
+    "YOLOv10-seg",
+    "PyTorch",
+    "OpenCV",
+    "Streamlit",
+    "PySerial",
+    "GRBL",
+    "NumPy",
+    "SciPy"
+  ],
+  color: "#81B29A",
+  fullDescription: "Custom poker chip manufacturing requires drilling out existing inlays to replace them with new designs (metal, resin, or client logos). However, clay poker chips often have inlays that are significantly off-center—sometimes by several millimeters—making automated drilling impossible without first detecting the true inlay position. This project solves that problem by integrating a USB endoscope camera directly into a Shapeoko 5.1 CNC machine and using computer vision to detect inlay offsets in real time. The complete vision-guided automation system handles everything from camera calibration to G-code offset correction, reducing per-chip processing time from 15 seconds to under 0.5 seconds.",
+  challenges: [
+    "Poker chips arrive with inlays that are inconsistently centered by several millimeters",
+    "Manual centering takes 15-20 seconds per chip and introduces significant human error",
+    "Inlay colors vary widely (bright colors, black-on-black, metallic), challenging traditional detection",
+    "Printed graphics and text on inlays confuse standard circle detection algorithms",
+    "The camera moves with the drill, creating a constantly changing viewpoint requiring dynamic calibration",
+    "System must run on client's existing CNC machine with no hardware modifications beyond adding a camera",
+    "Converting between coordinate systems: camera space → pixel space → machine space"
+  ],
+  solutions: [
+    "Trained custom YOLOv10-seg model to detect both outer chip boundary and inner inlay circle simultaneously",
+    "Implemented adaptive color segmentation that handles any inlay color, including challenging black-on-black",
+    "Applied morphological post-processing to remove printed text and graphics from inlay surface",
+    "Developed region growing algorithm for sub-pixel accurate detection boundaries (<0.5 second per chip)",
+    "Created camera-to-drill offset measurement system converting pixel coordinates to GRBL machine coordinates",
+    "Built Streamlit interface with live camera feed, one-click capture, and real-time offset visualization",
+    "Implemented direct serial communication with GRBL controller using PySerial for real-time G-code correction via G10 L2 P1 (G54 work offset)"
+  ],
+  fullDetail: [],
+  images: [],
+  imageDescriptions: [],
+  // videoUrl: "/assets/cnc.mp4",
+  // videoTitle: "CNC Vision System in Action",
+  // liveUrl: "",
+  // githubUrl: "",
+  duration: "",
+  team: "Solo Developer",
+  status: "Completed"
+},
+{
+  id: 17,
+  title: "3D Reconstruction into Minecraft using SfM",
+  description: "VGGT transformer model for reconstructing 3D structures from image sequences and converting them to Minecraft schematics",
+  image: "/assets/sfmpic.png",
+  tech: [
+    "PyTorch",
+    "VGGT",
+    "OpenCV",
+    "Open3D",
+    "Scikit-Image",
+    "Scikit-Learn",
+    "NumPy",
+    "Matplotlib"
+  ],
+  color: "#F2CC8F",
+  fullDescription: "This project expands on depth estimation techniques by implementing Structure from Motion (SfM) to create accurate 3D reconstructions from sequences of images, then converts them into Minecraft Litematica schematics. Using the VGGT (Visual Geometry Grounded Transformer) model, the pipeline processes 15-30 frames from the Temple of the Dioskouri dataset (312 total images) through a single forward pass to generate depth maps, camera pose estimations, and dense point clouds. The reconstruction is then voxelized, color-matched to Minecraft textures using ball-tree nearest neighbor search, and exported as a playable Minecraft build.",
+  challenges: [
+    "Converting 2D image sequences into accurate 3D spatial reconstructions",
+    "Processing too many frames (312 images) caused extreme noise and unrecognizable structures",
+    "VGGT model produced high camera rotation error (154.27° average) vs ground truth",
+    "Scaling inaccuracies: X ratio 0.65, Y ratio 0.36 compared to ground truth bounding box",
+    "Columns and fine details merged together in point cloud reconstruction",
+    "Matching point cloud RGB values to Minecraft block textures accurately",
+    "Filling holes between densely placed voxels to create solid structures"
+  ],
+  solutions: [
+    "Implemented VGGT transformer for SfM through single forward pass, enabling fast and efficient reconstruction",
+    "Testing revealed optimal frame count: 15-30 frames produced reasonable results vs 312 frames causing failure",
+    "Applied confidence filtering with threshold t=0.92 to reduce noise and false positives in point cloud",
+    "Used ball-tree nearest neighbor algorithm (O(n log n) construction, O(log n) query) for RGB to Minecraft texture mapping",
+    "Developed hole-filling algorithm checking neighbor occupancy to fill gaps between voxels",
+    "Voxelized point cloud by segmenting into 3D grid cells (voxel size=1) with average color assignment per cell",
+    "Exported to Litematica format for automatic block placement in Minecraft"
+  ],
+  fullDetail: [],
+  images: [],
+  imageDescriptions: [],
+  pdfUrl: "/assets/sfm_final.pdf",
+  // liveUrl: "",
+  // githubUrl: "",
+  duration: "",
+  team: "Solo Developer",
+  status: "Completed"
+  },
+  {
+    id: 14,
+    title: "Feature Detection, Description & Matching",
+    description: "Harris corner detection, MOPS descriptors, and matching techniques with RANSAC evaluation",
+    image: "/assets/matchingpic.png",
+    tech: ["Python", "OpenCV", "NumPy", "Scikit-Image", "Computer Vision"],
+    color: "#F2CC8F",
+    fullDescription: "This project implements a complete feature detection and matching pipeline including Harris corner detection, MOPS (Multi-Orientation Patch) descriptors implemented from scratch, and multiple matching techniques (distance threshold, nearest neighbor, distance ratio). The pipeline was tested on image pairs with varying similarity levels and evaluated using RANSAC for outlier removal and true positive rate calculations against ground truth homography.",
+    challenges: [
+      "Implementing rotation and illumination invariant MOPS descriptors from scratch",
+      "Maintaining matching accuracy when images have rotation, blur, or viewpoint changes",
+      "Evaluating which matching method performs best under different image conditions",
+      "Removing outlier matches that degrade homography estimation quality"
+    ],
+    solutions: [
+      "Implemented MOPS descriptors with rotation and illumination invariance for robust feature representation",
+      "Applied RANSAC to eliminate outliers by iteratively finding optimal homography from random point subsets",
+      "Found distance ratio matching significantly outperformed other methods on challenging images (83% TPR vs 0-3%)",
+      "Demonstrated all three methods achieved 100% TPR on similar images when combined with RANSAC"
+    ],
+    fullDetail: [],
+    images: [],
+    imageDescriptions: [],
+    pdfUrl: "/assets/feature_matching.pdf",
+    duration: "",
+    team: "Solo Developer",
+    status: "Completed"
+  },
+  {
     id: 7,
     title: "Watershed Cell Segmentation & Counting",
     description:
@@ -206,6 +329,90 @@ export const projects: Project[] = [
     team: "Solo Developer",
     status: "Completed",
     pdfUrl: "/assets/watershed_report.pdf",
+  },
+  {
+    id: 12,
+    title: "Background Subtraction for Moving Object Segmentation",
+    description: "Comparative analysis of learning rates and threshold values for foreground-background separation in video sequences",
+    image: "/assets/backgroundpic.png",
+    tech: ["Python", "OpenCV", "NumPy", "Computer Vision"],
+    color: "#E07A5F",
+    fullDescription: "Moving object segmentation is a critical application of computer vision for video analysis. This project implements and evaluates background subtraction techniques using a non-moving camera setup. Different learning rates (α = 0.001 and 0.01) and threshold values (TM = 2 and 3) were tested to analyze their impact on foreground mask quality, noise levels, and object retention.",
+    challenges: [
+      "Managing noise in foreground masks, especially with lower threshold values (TM = 2)",
+      "Balancing background model update rates to avoid motion blur while maintaining accurate object segmentation",
+      "Preventing thresholding from removing actual moving objects when using higher thresholds (TM = 3)",
+      "Handling the trade-off between background model sensitivity and noise reduction"
+    ],
+    solutions: [
+      "Implemented running mean background model with configurable learning rates for adaptive background estimation",
+      "Applied threshold-based foreground detection to separate moving objects from static background",
+      "Recommended post-processing techniques (dilation and erosion) to reduce noise and improve mask quality",
+      "Found optimal balance with lower learning rate (α = 0.001) and higher threshold (TM = 3) for best noise reduction while preserving objects"
+    ],
+    fullDetail: [],
+    images: [],
+    imageDescriptions: [],
+    pdfUrl: "/assets/background_subtraction.pdf",
+    duration: "",
+    team: "Solo Developer",
+    status: "Completed"
+  },
+  {
+    id: 13,
+    title: "Color Edge Detection Using Structure Tensor",
+    description: "Comparison of grayscale edge detection vs. 2D color structure tensor for cleaner edge extraction",
+    image: "/assets/colorpic.jpg",
+    tech: ["Python", "OpenCV", "Scikit-Image", "NumPy", "Matplotlib"],
+    color: "#81B29A",
+    fullDescription: "Edge detection is fundamental to image processing for feature extraction and information analysis. This project compares two edge detection approaches: gradient magnitude from grayscale conversion versus computing the 2D color structure tensor from RGB images. The research examines how Gaussian blur with different sigma values (σ = 1 and 3) affects edge definition and noise reduction.",
+    challenges: [
+      "Information loss during grayscale conversion reducing edge detection quality",
+      "Balancing edge definition with noise reduction when selecting Gaussian blur parameters",
+      "Maintaining accurate edge localization while smoothing inter-cell noise",
+      "Combining information from multiple color channels into coherent edge detection"
+    ],
+    solutions: [
+      "Implemented 2D color structure tensor to utilize all RGB channels simultaneously, preserving critical color information",
+      "Tested multiple sigma values (σ = 1, 3) to analyze trade-off between edge definition and noise suppression",
+      "Demonstrated tensor-based approach produced clearer edges with significantly less noise than grayscale method",
+      "Recommended threshold post-processing to further isolate cells and remove remaining noise"
+    ],
+    fullDetail: [],
+    images: [],
+    imageDescriptions: [],
+    pdfUrl: "/assets/color_edge_detection.pdf",
+    duration: "",
+    team: "Solo Developer",
+    status: "Completed"
+  },
+  {
+    id: 15,
+    title: "CNN Image Classification on CIFAR-10",
+    description: "Comparative analysis of CNN architectures for object classification with confusion matrix evaluation",
+    image: "/assets/cnnpic.png",
+    tech: ["PyTorch", "Python", "CNN", "NumPy", "Matplotlib"],
+    color: "#E07A5F",
+    fullDescription: "This project trains and evaluates convolutional neural networks for image classification on the CIFAR-10 dataset. Three different CNN architectures (Net1, Net2, Net3) were compared to analyze how layer depth, output channels, and number of classes affect classification accuracy. The research examines confusion patterns between similar-looking classes and explores how background context influences misclassifications.",
+    challenges: [
+      "Distinguishing visually similar classes (cats vs dogs, deer vs frogs) in challenging poses",
+      "Preventing networks from learning background textures instead of object features",
+      "Achieving good accuracy across all 10 classes with limited network complexity",
+      "Analyzing misclassification patterns to understand model learning behavior"
+    ],
+    solutions: [
+      "Designed progressive architectures: Net1 (baseline), Net2 (more channels + extra conv layer), Net3 (4-class for comparison)",
+      "Net2 achieved 69.94% average accuracy, a 10.7% improvement over Net1's 59.24%",
+      "Net3 reached 84.38% accuracy by reducing to 4 classes (Horse, Dog, Deer, Other)",
+      "Identified background-biased learning: deer with blue backgrounds classified as plane, frogs in green as bird"
+    ],
+    fullDetail: [],
+    images: [],
+    imageDescriptions: [],
+    pdfUrl: "/assets/image_classification.pdf",
+    duration: "",
+    team: "Solo Developer",
+    status: "Completed"
   },
   {
     id: 8,
@@ -292,45 +499,6 @@ export const projects: Project[] = [
     team: "Solo Developer",
     status: "Completed",
     pdfUrl: "/assets/adaptive_report.pdf",
-  },
-  {
-    id: 2,
-    title: "Neural Network Research",
-    description:
-      "Research on image recognition with Python image processing",
-    image:
-      "/assets/nnpic.png",
-    tech: ["Python", "TensorFlow", "Keras", "NumPy"],
-    color: "#E07A5F",
-    fullDescription:
-      "This project involved the design, implementation, and testing of a custom neural network to identify different items from Minecraft based on their 16x16 pixel textures. The primary goal was to determine how accurately a neural network could learn to classify these items across various texture packs.",
-    challenges: [
-      "Working with only 168 custom Minecraft textures",
-      "Grasping the complex mathematical concepts behind neural networks, like gradient descent and backpropagation, well enough to derive and explain them clearly in my paper",
-      "Verifying the network was learning correctly without standard ML frameworks and with a limited dataset",
-      "Building the neural network, forward/backpropagation, and gradient descent from scratch in Python",
-    ],
-    solutions: [
-      "Preprocessing to convert images to grayscale, flattened matrices, and normalized pixel values for efficient processing",
-      "Broke down each formula step-by-step, using the chain rule to logically connect the derivatives from the cost function back to the weights and biases, creating a clear and accurate theoretical foundation",
-      "Tracked prediction accuracy every 10 iterations, which provided a clear visual confirmation of learning progress and model convergence",
-    ],
-    fullDetail:[
-      
-    ],
-    images: [
-
-    ],
-    imageDescriptions: [
-      "Neural network architecture visualization showing convolutional layers and feature extraction process",
-      "Training results dashboard displaying accuracy metrics and loss curves over training epochs",
-    ],
-    pdfUrl: "/assets/Neural-Network-Research.pdf", // Example - replace with actual project documentation
-    // liveUrl: "", // Add real URL when available
-    // githubUrl: "", // Add real URL when available
-    duration: "",
-    team: "Solo Developer",
-    status: "Research",
   },
   {
     id: 3,
@@ -442,7 +610,7 @@ export const projects: Project[] = [
     team: "Solo Developer",
     status: "Research",
     pdfUrl: "/assets/Fluid-Simulation-Research.pdf",
-  },
+  }
 ];
 
 // Featured projects for main page (first 3)

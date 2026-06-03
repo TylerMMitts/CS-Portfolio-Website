@@ -19,6 +19,9 @@ interface ProjectDetailProps {
     pdfUrl?: string;
     pdfTitle?: string;
     pdfDescription?: string;
+    videoUrl?: string;
+    videoTitle?: string;
+    videoDescription?: string;
     liveUrl?: string;
     githubUrl?: string;
     team: string;
@@ -59,7 +62,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
             document.body.scrollTop = 0;
           }, 50);
         }}
-        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full pixel-border bg-cream/90 backdrop-blur-sm text-deep-slate hover:bg-deep-slate hover:text-cream transition-all duration-300"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full pixel-border bg-cream/90 backdrop-blur-sm text-deep-slate hover:bg-deep-slate hover:text-cream transition-all duration-300"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -72,12 +75,12 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
 
       {/* Hero Section */}
       <motion.section
-        className="pt-24 pb-16 px-6"
+        className="pt-28 pb-12 px-4 sm:pt-32 sm:pb-16 sm:px-6"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto mt-8 sm:mt-0">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Project Info */}
             <div>
@@ -97,7 +100,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               </motion.div>
 
               <motion.h1
-                className="text-4xl md:text-5xl font-bold text-deep-slate mb-6 leading-tight"
+                className="text-3xl sm:text-4xl md:text-5xl font-bold text-deep-slate mb-6 leading-tight break-words"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
@@ -106,7 +109,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               </motion.h1>
 
               <motion.p
-                className="text-lg text-deep-slate/80 mb-8 leading-relaxed"
+                className="text-base sm:text-lg text-deep-slate/80 mb-8 leading-relaxed break-words"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -213,14 +216,14 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
 
       {/* Tech Stack */}
       <motion.section
-        className="py-16 px-6"
+        className="py-12 px-4 sm:py-16 sm:px-6"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-deep-slate mb-8 text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-deep-slate mb-6 sm:mb-8 text-center break-words">
             Technology Stack
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
@@ -247,7 +250,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
 
       {/* Project Details */}
       <motion.section
-        className="py-16 px-6"
+        className="py-12 px-4 sm:py-16 sm:px-6"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -262,7 +265,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xl font-bold text-deep-slate mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-deep-slate mb-4 sm:mb-6 break-words">
                 Challenges & Problems
               </h3>
               <div className="space-y-4">
@@ -279,7 +282,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                       className="w-2 h-2 pixel-corners mt-2 flex-shrink-0"
                       style={{ backgroundColor: project.color }}
                     />
-                    <p className="text-deep-slate/80 text-sm leading-relaxed">
+                    <p className="text-deep-slate/80 text-sm leading-relaxed break-words">
                       {challenge}
                     </p>
                   </motion.div>
@@ -294,7 +297,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xl font-bold text-deep-slate mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-deep-slate mb-4 sm:mb-6 break-words">
                 Solutions & Approach
               </h3>
               <div className="space-y-4">
@@ -311,7 +314,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                       className="w-2 h-2 pixel-corners mt-2 flex-shrink-0"
                       style={{ backgroundColor: '#81B29A' }}
                     />
-                    <p className="text-deep-slate/80 text-sm leading-relaxed">
+                    <p className="text-deep-slate/80 text-sm leading-relaxed break-words">
                       {solution}
                     </p>
                   </motion.div>
@@ -322,21 +325,73 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
         </div>
       </motion.section>
 
-      {/* PDF Viewer Section */}
-      {project.pdfUrl && (
+      {/* Video Section */}
+      {project.videoUrl && (
         <motion.section
-          className="py-16 px-6"
+          className="py-12 px-4 sm:py-16 sm:px-6"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-deep-slate mb-8 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-deep-slate mb-6 sm:mb-8 text-center break-words">
+              {project.videoTitle || "Project Video"}
+            </h2>
+            {project.videoDescription && (
+              <p className="text-base sm:text-lg text-deep-slate/80 max-w-2xl mx-auto text-center leading-relaxed mb-6 sm:mb-8 break-words">
+                {project.videoDescription}
+              </p>
+            )}
+            
+            {/* Video Player */}
+            <motion.div
+              className="relative bg-deep-slate/5 rounded-lg pixel-border overflow-hidden shadow-lg"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <video
+                controls
+                className="w-full h-auto"
+                style={{ maxHeight: '600px' }}
+              >
+                <source src={project.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </motion.div>
+
+            <motion.div
+              className="text-center mt-6"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-sm text-deep-slate/60">
+                Use the video controls to play, pause, and adjust volume
+              </p>
+            </motion.div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* PDF Viewer Section */}
+      {project.pdfUrl && (
+        <motion.section
+          className="py-12 px-4 sm:py-16 sm:px-6"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-bold text-deep-slate mb-6 sm:mb-8 text-center break-words">
               {project.pdfTitle || "Project Documentation"}
             </h2>
             {project.pdfDescription && (
-              <p className="text-lg text-deep-slate/80 max-w-2xl mx-auto text-center leading-relaxed mb-8">
+              <p className="text-base sm:text-lg text-deep-slate/80 max-w-2xl mx-auto text-center leading-relaxed mb-6 sm:mb-8 break-words">
                 {project.pdfDescription}
               </p>
             )}
@@ -377,14 +432,14 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
       {/* Additional Images */}
       {project.images.length > 0 && (
         <motion.section
-          className="py-16 px-6"
+          className="py-12 px-4 sm:py-16 sm:px-6"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-deep-slate mb-12 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-deep-slate mb-8 sm:mb-12 text-center break-words">
               Project Gallery
             </h2>
             <div className="space-y-12">
@@ -437,7 +492,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                           style={{ backgroundColor: project.color }}
                         />
                       </div>
-                      <p className="text-deep-slate/80 text-base leading-relaxed">
+                      <p className="text-deep-slate/80 text-sm sm:text-base leading-relaxed break-words px-4">
                         {project.imageDescriptions[index]}
                       </p>
                     </motion.div>
