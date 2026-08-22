@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Cortical Cell Pattern</title>
+<meta name="description" content="A shared pattern in root cortical cell size, measured across thousands of root cross-sections. Explore the interactive model and the full methodology.">
+<meta name="robots" content="index,follow">
+
+<meta property="og:title" content="The Cortical Cell Pattern">
+<meta property="og:description" content="A shared pattern in root cortical cell size, measured across thousands of root cross-sections.">
+<meta property="og:type" content="website">
+
+<style>
+  :root {
+    color-scheme: light;
+    --paper:       #f6f7f5;
+    --surface:     #ffffff;
+    --sunken:      #eef1ed;
+    --ink:         #14171a;
+    --body:        #2f3833;
+    --muted:       #5f6b66;
+    --rule:        #dde2dd;
+    --accent:      #0f6b57;
+    --accent-soft: #e2efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper:       #0e1211;
+      --surface:     #161b19;
+      --sunken:      #1c2321;
+      --ink:         #eef2ef;
+      --body:        #c3ccc7;
+      --muted:       #8b9a94;
+      --rule:        #263029;
+      --accent:      #5cc6a6;
+      --accent-soft: #14322a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper:       #0e1211;
+    --surface:     #161b19;
+    --sunken:      #1c2321;
+    --ink:         #eef2ef;
+    --body:        #c3ccc7;
+    --muted:       #8b9a94;
+    --rule:        #263029;
+    --accent:      #5cc6a6;
+    --accent-soft: #14322a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--body);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 0 1.15rem 4rem; }
+
+  /* ---------- masthead ---------- */
+  header { padding: 2.6rem 0 0; }
+  .eyebrow {
+    font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 650; color: var(--accent); margin: 0 0 .7rem;
+  }
+  h1 {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    line-height: 1.08; font-weight: 600; letter-spacing: -.02em;
+    color: var(--ink); margin: 0 0 .7rem; text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.05rem; color: var(--muted); margin: 0; max-width: 32rem;
+    text-wrap: pretty;
+  }
+
+  /* ---------- hero curve ---------- */
+  .hero {
+    margin: 1.9rem 0 0; background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 4px;
+    padding: 1.1rem 1rem .8rem;
+  }
+  .hero svg { display: block; width: 100%; height: auto; }
+  .axis-note {
+    display: flex; justify-content: space-between;
+    font-size: .68rem; color: var(--muted); margin-top: .5rem;
+    letter-spacing: .04em; text-transform: uppercase; font-weight: 620;
+  }
+  .hero-cap {
+    font-size: .78rem; color: var(--muted); margin: .7rem 0 0;
+    border-top: 1px solid var(--rule); padding-top: .6rem; text-wrap: pretty;
+  }
+  .hero-cap b { color: var(--ink); font-weight: 650; }
+
+  /* ---------- cards ---------- */
+  .cards { display: grid; gap: .85rem; margin: 2.2rem 0 0; }
+  @media (min-width: 36rem) { .cards { grid-template-columns: 1fr 1fr; } }
+
+  a.card {
+    display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 1.1rem 1.1rem 1rem;
+    text-decoration: none; color: inherit;
+    transition: border-color .15s, transform .15s;
+  }
+  a.card:hover, a.card:focus-visible {
+    border-color: var(--accent); transform: translateY(-2px);
+  }
+  .card .tag {
+    font-size: .62rem; letter-spacing: .11em; text-transform: uppercase;
+    font-weight: 700; color: var(--accent); background: var(--accent-soft);
+    align-self: flex-start; border-radius: 999px; padding: .22rem .6rem;
+    margin-bottom: .75rem;
+  }
+  .card h2 {
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.25rem; line-height: 1.2; font-weight: 600;
+    color: var(--ink); margin: 0 0 .35rem; letter-spacing: -.01em;
+  }
+  .card p { font-size: .87rem; color: var(--muted); margin: 0 0 .9rem; text-wrap: pretty; }
+  .card .go {
+    margin-top: auto; font-size: .82rem; font-weight: 650; color: var(--accent);
+  }
+  .card .go::after { content: " \2192"; }
+
+  /* ---------- background prose ---------- */
+  section.about { margin: 2.6rem 0 0; }
+  section.about h2 {
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.3rem; font-weight: 600; color: var(--ink);
+    margin: 0 0 .6rem; letter-spacing: -.01em;
+  }
+  section.about p { margin: 0 0 .9rem; text-wrap: pretty; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 4px; overflow: hidden; margin: 1.5rem 0 0;
+  }
+  .stat { background: var(--surface); padding: .75rem .85rem; }
+  .stat dt {
+    font-size: .63rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700;
+  }
+  .stat dd {
+    margin: .18rem 0 0; font-size: 1.35rem; font-weight: 600; color: var(--ink);
+    font-family: ui-serif, Georgia, serif; font-variant-numeric: tabular-nums;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule); margin-top: 2.8rem; padding-top: 1.1rem;
+    font-size: .8rem; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; justify-content: space-between;
+  }
+  footer a { color: var(--accent); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Undergraduate research &middot; Root anatomy</p>
+    <h1>The cortical cell pattern</h1>
+    <p class="standfirst">Cell size across the root cortex is not arbitrary. It follows the same
+      shape in root after root, and so far in every species measured.</p>
+  </header>
+
+  <div class="hero">
+    <svg viewBox="0 0 1000 300" role="img"
+         aria-label="Average normalised cortical cell size plotted against normalised radius: rising from the stele to a peak around a third of the way out, falling toward the outside, then lifting again at the epidermis.">
+      <!-- gridlines -->
+      <g stroke="var(--rule)" stroke-width="1">
+        <line x1="0" y1="75"  x2="1000" y2="75"/>
+        <line x1="0" y1="150" x2="1000" y2="150"/>
+        <line x1="0" y1="225" x2="1000" y2="225"/>
+      </g>
+      <!-- the fitted cubic, y = 1.3174x^3 - 2.4089x^2 + 1.1793x + 0.1256 -->
+      <polyline fill="none" stroke="var(--accent)" stroke-width="5"
+                stroke-linecap="round" stroke-linejoin="round"
+                points="0.0,269.3 20.0,242.2 40.0,217.2 60.0,194.5 80.0,173.8 100.0,155.1
+                        120.0,138.4 140.0,123.5 160.0,110.4 180.0,99.0 200.0,89.3 220.0,81.0
+                        240.0,74.3 260.0,69.0 280.0,65.0 300.0,62.2 320.0,60.7 340.0,60.2
+                        360.0,60.7 380.0,62.2 400.0,64.6 420.0,67.7 440.0,71.6 460.0,76.1
+                        480.0,81.2 500.0,86.8 520.0,92.8 540.0,99.1 560.0,105.7 580.0,112.5
+                        600.0,119.4 620.0,126.3 640.0,133.2 660.0,140.0 680.0,146.6 700.0,152.9
+                        720.0,158.8 740.0,164.4 760.0,169.5 780.0,173.9 800.0,177.8 820.0,180.9
+                        840.0,183.2 860.0,184.7 880.0,185.2 900.0,184.6 920.0,183.0 940.0,180.2
+                        960.0,176.1 980.0,170.7 1000.0,163.9"/>
+      <!-- peak marker -->
+      <circle cx="340" cy="60.2" r="7" fill="var(--paper)" stroke="var(--accent)" stroke-width="4"/>
+    </svg>
+    <div class="axis-note"><span>Stele</span><span>Epidermis</span></div>
+    <p class="hero-cap">The average pattern across <b>1,708 roots</b>. Cells start small beside the
+      stele, reach their largest about a third of the way out, then shrink toward the outside
+      before lifting again at the epidermis.</p>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="reconstruction.html">
+      <span class="tag">Interactive</span>
+      <h2>Build a root</h2>
+      <p>Move the sliders and watch a cross-section rebuild itself in real time. Load a real root,
+        or push the pattern past what any root could actually be.</p>
+      <span class="go">Open the model</span>
+    </a>
+
+    <a class="card" href="methods.html">
+      <span class="tag">Reference</span>
+      <h2>How it was measured</h2>
+      <p>Every stage behind the numbers, from raw microscopy through cell segmentation, cell file
+        detection and curve fitting, followed on one worked example.</p>
+      <span class="go">Read the methods</span>
+    </a>
+  </div>
+
+  <section class="about">
+    <h2>Why roots</h2>
+    <p>Roots do more than anchor a plant. They control how much carbon it sends underground, how
+      much soil it can reach, and how well it takes up water and nutrients, while also shaping the
+      microbial community living around them, making root structure a key factor in drought
+      tolerance, nutrient efficiency, and soil health.</p>
+    <p>Across large populations of maize roots, this project has found that cortical cell size
+      follows a strikingly consistent pattern moving outward from the stele, a &ldquo;cortical cell
+      pattern&rdquo; that appears to be a fundamental feature of root anatomy rather than a random
+      byproduct of growth. This pattern holds not just within maize but across multiple species,
+      suggesting it may be a universal feature of root structure, one worth understanding for what
+      it could reveal about the traits that matter most for crop resilience.</p>
+
+    <dl class="stats">
+      <div class="stat"><dt>Roots</dt><dd>1,708</dd></div>
+      <div class="stat"><dt>Quadrant images</dt><dd>6,211</dd></div>
+      <div class="stat"><dt>Cells measured</dt><dd>1.44M</dd></div>
+      <div class="stat"><dt>Species</dt><dd>4</dd></div>
+    </dl>
+  </section>
+
+  <footer>
+    <span>Tyler Mitts &middot; root anatomy research</span>
+    <a href="/">Back to portfolio</a>
+  </footer>
+
+</div>
+
+</body>
+</html>
