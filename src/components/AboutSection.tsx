@@ -7,21 +7,31 @@ const terminalContent = [
   "",
   "tyler@portfolio:~$ cat about.txt",
   "",
-  "I'm a computer science major with a minor in mathematics and IT at the University of",
-  "Missouri-Columbia. I am passionate about software development and computer vision,",
-  "in which I am exploring these interests through current projects and research that",
-  "I am currently involved in.",
+  "I'm a senior computer science major with minors in mathematics and IT at the",
+  "University of Missouri-Columbia, doing research at the intersection of computer",
+  "vision and plant biology.",
   "",
-  "When I'm not coding, you'll find me staying active, either going on a hike, going",
-  "to the gym, or playing sports with my friends. I am also active in the engineering",
-  "fraternity here at Mizzou, Sigma Phi Delta, where I am pushed to be a better engineer",
-  "and leader.",
+  "I fell in love with image data in my image processing and computer vision",
+  "classes. I was hooked on looking at an image, designing a pipeline to pull",
+  "useful information out of it, and refining it until it worked. That led me",
+  "into research, where I now work on the genotype-to-phenotype problem: building",
+  "generative models that predict what an organism will look like from its",
+  "genome alone.",
   "",
-  "My work is driven by creativity and my desire to learn and to create something people ",
-  "that people actually use.",
+  "tyler@portfolio:~$ ls research/",
+  "DNA_to_Display/   diffusion model that generates maize roots and seeds from DNA",
+  "Cortical_Cells/   segmented 1.4M root cells, found a conserved size pattern",
+  "",
+  "I've presented this work at the UIUC Plant Sciences Symposium, the Mizzou",
+  "Interdisciplinary Plant Group, and the Math for All conference. Next, I want to",
+  "pursue a PhD in computer vision and make machine learning in biology more",
+  "reliable, while building tools that people actually use.",
+  "",
+  "Outside the lab you'll find me hiking, at the gym, or playing sports with",
+  "friends.",
   "",
   "tyler@portfolio:~$ ls skills/",
-  "Software.js    Database.sql    UI.css    ComputerVision.py    Creativity.gif",
+  "ComputerVision.py    Diffusion.pt    Statistics.py    Software.js    Creativity.gif",
   "",
   "tyler@portfolio:~$ █"
 ];
@@ -46,7 +56,7 @@ export function AboutSection() {
   const getLineStyle = (line: string) => {
     if (line.startsWith('tyler@portfolio:~$')) {
       return 'text-sage-green font-bold';
-    } else if (line.includes('.js') || line.includes('.art') || line.includes('.gif')) {
+    } else if (line.includes('.js') || line.includes('.art') || line.includes('.gif') || /^\w+\/\s/.test(line)) {
       return 'text-warm-yellow';
     } else if (line.startsWith('Tyler Mitts')) {
       return 'text-burnt-orange font-bold';
@@ -128,6 +138,7 @@ export function AboutSection() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.1 }}
                     className={getLineStyle(line)}
+                    style={{ whiteSpace: 'pre-wrap' }}
                   >
                     {line === "" ? "\u00A0" : 
                      isLastLine ? (

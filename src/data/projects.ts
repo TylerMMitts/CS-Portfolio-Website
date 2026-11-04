@@ -1,5 +1,6 @@
 export interface Project {
   id: number;
+  slug: string; // URL path, e.g. tylermitts.com/dna-to-display
   title: string;
   description: string;
   image: string;
@@ -18,6 +19,9 @@ export interface Project {
   videoTitle?: string; // Optional video title
   videoDescription?: string; // Optional video description
   liveUrl?: string;
+  liveLabel?: string; // Optional label for the live link button
+  layout?: "slides"; // "slides": page is just a short intro + the slide deck, fit to one screen
+  slides?: string[]; // Slide images shown by the slides layout
   githubUrl?: string;
   duration: string;
   team: string;
@@ -26,7 +30,103 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: 18,
+    slug: "dna-to-display",
+    title: "DNA to Display",
+    description:
+      "Latent diffusion pipeline that generates images of maize roots and seeds directly from their genomes",
+    image: "/assets/dnapic.webp",
+    tech: [
+      "PyTorch",
+      "Latent Diffusion",
+      "LiteVAE",
+      "Cross-Attention",
+      "YOLOv8",
+      "Python",
+    ],
+    color: "#3D6FB6",
+    fullDescription:
+      "Generating images of maize roots and seeds solely from their genomes, using a latent diffusion model conditioned on SNP data.",
+    layout: "slides",
+    slides: Array.from(
+      { length: 30 },
+      (_, i) => `/assets/dna_slides/slide${String(i + 1).padStart(2, "0")}.webp`,
+    ),
+    // Not shown on the slides layout; kept for reference
+    challenges: [
+      "Generating images that look like real roots is not enough: the generated phenotype has to actually reflect the genome it was conditioned on",
+      "Encoding 43,788 genetic markers into a form a diffusion model can attend to",
+      "A PCA genetic encoding memorized training genotypes: it produced red seeds for 81% of red genotypes it trained on but only 15% of held-out genotypes",
+      "Proving that the model's outputs are caused by the genes, not by correlations it happened to pick up",
+      "High-throughput root phenotyping is hard to do physically, so real training data is limited",
+    ],
+    solutions: [
+      "Built a full pipeline: root detection and cropping, LiteVAE autoencoder (256×256 image to a 4×32×32 latent), SNP encoder, and a denoising UNet that reads gene tokens at every step through cross-attention",
+      "Designed a window encoder that groups neighboring genes into windows, mirroring how genes are inherited in contiguous blocks, and lets the model learn which windows to keep",
+      "The window encoder generated red seeds for 90% of red genotypes it had never seen, closing the gap between trained and held-out genotypes to nearly zero",
+      "Ran a positive control by planting an artificial gene block tied to real stele size: generated stele sizes correlated with real ones on held-out genotypes (r = 0.58), and changing only the planted genes moved stele diameter 9.4 px versus under 1 px for real genes",
+      "Used a segmentation model to measure root, stele, and vessel traits so generated images can be scored against real ones",
+    ],
+    fullDetail: [],
+    images: [
+      "/assets/dna_pipeline.jpg",
+      "/assets/dna_real_roots.jpg",
+      "/assets/dna_seeds.jpg",
+    ],
+    imageDescriptions: [
+      "The pipeline: (A) LiteVAE compresses a root image to a latent and rebuilds it, (B) the SNP encoder turns a genome into gene tokens, and (C) the diffusion model turns noise and gene tokens into a new root",
+      "Real maize root cross-sections used for training",
+      "The pipeline adapted from roots to seeds, predicting seed shape and color from molecular marker data",
+    ],
+    pdfUrl: "/assets/DNA_to_Display_talk.pdf",
+    pdfTitle: "DNA to Display Talk",
+    duration: "",
+    team: "Mentors: Dr. Jagdeep Singh Sidhu, Dr. Erik Amézquita & Mo Akbar",
+    status: "Ongoing Research",
+  },
+  {
+    id: 19,
+    slug: "cortical-cell-pattern",
+    title: "The Cortical Cell Pattern",
+    description:
+      "Segmented 1.4 million root cells and discovered a conserved pattern in how cortical cell size changes across the root",
+    image: "/assets/corticalpic.jpg",
+    tech: [
+      "Python",
+      "Instance Segmentation",
+      "OpenCV",
+      "NumPy",
+      "SciPy",
+      "Statistical Modeling",
+    ],
+    color: "#0F6B57",
+    fullDescription:
+      "The root cortex plays a fundamental role in taking up water and nutrients from the soil while keeping out pathogens and toxins, yet how cortical cell size is distributed across it was largely unknown. I built a computer vision and statistics pipeline that processed thousands of cross-sectional root images, segmented every cortical cell, and analyzed their spatial distribution. Across 1,708 roots the result was strikingly consistent: cells start small beside the stele, reach their largest about a third of the way out, then shrink toward the outside before lifting again at the epidermis. The same pattern holds across every species measured so far, suggesting it is a fundamental, conserved feature of root anatomy.",
+    challenges: [
+      "Segmenting individual cells reliably across thousands of microscopy images with varying quality",
+      "Defining cell files is not easy: the rings are uneven even by eye and roots are not perfectly circular, so radius alone fails",
+      "Large pipeline runs exhausted system memory and took around 20 hours",
+      "Separating a real biological pattern from noise and from differences between roots and species",
+    ],
+    solutions: [
+      "Annotated ~100 images and trained a segmentation model (mAP50 = 0.707) with data augmentation and quality control, segmenting over 1.44 million cells",
+      "Compared several methods on small samples before committing, landing on a cell file detection method based on the derivative of cell size as radius increases",
+      "Added memory cleanup routines and optimized algorithms, cutting full pipeline runs from about 20 hours to about 1 hour",
+      "Fit the normalized cell size curve across roots and species, finding the same pattern in all four species analyzed",
+      "Presented the pipeline and results as a poster at the University of Illinois Plant Sciences Symposium",
+    ],
+    fullDetail: [],
+    images: [],
+    imageDescriptions: [],
+    liveUrl: "/root_pattern/",
+    liveLabel: "Explore Interactive Site",
+    duration: "",
+    team: "Mentors: Dr. Jagdeep Singh Sidhu & Dr. Erik Amézquita",
+    status: "Research",
+  },
+  {
     id: 10,
+    slug: "wheretostargaze",
     title: "WHERETOSTARGAZE",
     description:
       "Award-winning stargazing location finder analyzing light pollution and environmental data (1st Place, TigerHacks 2025)",
@@ -71,7 +171,57 @@ export const projects: Project[] = [
     status: "Completed",
   },
   {
+    id: 20,
+    slug: "healthy-scroll",
+    title: "Healthy Scroll",
+    description:
+      "Browser extension that skips Instagram Reels matching a filter you write in plain English (Hacker's Choice Award, TigerHacks 2026)",
+    image: "/assets/healthyscrollpic.png",
+    tech: [
+      "TypeScript",
+      "React",
+      "Next.js",
+      "FastAPI",
+      "Supabase",
+      "Gemini 2.5 Flash-Lite",
+      "ElevenLabs",
+      "FFmpeg",
+      "Safari Web Extensions",
+      "Swift",
+    ],
+    color: "#E07A5F",
+    fullDescription:
+      "Short-form video is designed to keep you watching. Instead of limiting screen time, Healthy Scroll addresses the content itself: you describe what you want to avoid in your own words (gambling content, brainrot, or even \"videos that make me compare myself to other people\") and the browser extension automatically scrolls past Reels it confidently identifies as matching your filter. It also shows weekly analytics on time spent per category and how many videos were skipped. It runs on Instagram Reels in Safari on iPhone and in desktop Chrome. Won the Hacker's Choice Award at TigerHacks 2026.",
+    challenges: [
+      "Latency is the whole user experience: even a few seconds of AI thinking time ruins scrolling",
+      "Balancing cost, latency, and accuracy across text, visual, and audio signals",
+      "Jev, the decision model, is not multimodal, so it cannot look at the video itself",
+      "Adapting the Chrome extension to Safari on iPhone, with its different background-script and sign-in behavior",
+      "Choosing an architecture (models, platform, device) under hackathon time pressure",
+    ],
+    solutions: [
+      "Used Jev, which returns structured answers with probabilities, so a confident text-only decision from the creator, caption, and audio title can skip a video immediately",
+      "Built the first version of the video-analysis service: FFmpeg greedily pulls the cover image and sampled frames from Instagram's CDN without downloading the whole video, and Gemini 2.5 Flash-Lite describes them for Jev",
+      "Pre-evaluate up to 10 upcoming Reels as Instagram loads them so decisions are ready before the user sees the video, with ElevenLabs transcription only for uncertain videos on screen",
+      "Built the sign-in and database with Supabase and Google OAuth, plus the extension's automatic Reel skipping",
+      "Fixed key AI bugs and made the demo and promo videos",
+    ],
+    fullDetail: [],
+    images: ["/assets/healthyscroll_arch.jpg"],
+    imageDescriptions: [
+      "System architecture: the extension, web API with Jev, and the vision service",
+    ],
+    videoUrl: "/assets/healthy-scroll-ad.mp4",
+    videoTitle: "Promo Video",
+    liveUrl: "https://healthyscroll.net",
+    githubUrl: "https://github.com/AndrewLHellman/healthyscroll",
+    duration: "36 hours (Hackathon)",
+    team: "4 Developers",
+    status: "Completed",
+  },
+  {
     id: 11,
+    slug: "applyapply",
     title: "ApplyApply",
     description:
       "Full-stack SaaS platform automating job applications with AI-powered document generation",
@@ -122,6 +272,7 @@ export const projects: Project[] = [
   },
   {
     id: 6,
+    slug: "depth-estimation",
     title: "Depth Estimation for Minecraft Builds",
     description:
       "3D reconstruction pipeline for converting 2D images into Minecraft schematics",
@@ -168,6 +319,7 @@ export const projects: Project[] = [
   },
   {
   id: 16,
+  slug: "vision-guided-cnc",
   title: "Vision-Guided CNC Automation",
   description: "YOLOv10-seg computer vision system for automated poker chip inlay drilling with sub-500ms detection and GRBL integration",
   image: "/assets/chippic.jpg",
@@ -215,6 +367,7 @@ export const projects: Project[] = [
 },
 {
   id: 17,
+  slug: "sfm-minecraft-reconstruction",
   title: "3D Reconstruction into Minecraft using SfM",
   description: "VGGT transformer model for reconstructing 3D structures from image sequences and converting them to Minecraft schematics",
   image: "/assets/sfmpic.png",
@@ -260,6 +413,7 @@ export const projects: Project[] = [
   },
   {
     id: 14,
+    slug: "feature-matching",
     title: "Feature Detection, Description & Matching",
     description: "Harris corner detection, MOPS descriptors, and matching techniques with RANSAC evaluation",
     image: "/assets/matchingpic.png",
@@ -288,6 +442,7 @@ export const projects: Project[] = [
   },
   {
     id: 7,
+    slug: "watershed-cell-segmentation",
     title: "Watershed Cell Segmentation & Counting",
     description:
       "Medical image analysis pipeline for segmenting and counting touching cells",
@@ -332,6 +487,7 @@ export const projects: Project[] = [
   },
   {
     id: 12,
+    slug: "background-subtraction",
     title: "Background Subtraction for Moving Object Segmentation",
     description: "Comparative analysis of learning rates and threshold values for foreground-background separation in video sequences",
     image: "/assets/backgroundpic.png",
@@ -360,6 +516,7 @@ export const projects: Project[] = [
   },
   {
     id: 13,
+    slug: "color-edge-detection",
     title: "Color Edge Detection Using Structure Tensor",
     description: "Comparison of grayscale edge detection vs. 2D color structure tensor for cleaner edge extraction",
     image: "/assets/colorpic.jpg",
@@ -388,6 +545,7 @@ export const projects: Project[] = [
   },
   {
     id: 15,
+    slug: "cnn-image-classification",
     title: "CNN Image Classification on CIFAR-10",
     description: "Comparative analysis of CNN architectures for object classification with confusion matrix evaluation",
     image: "/assets/cnnpic.png",
@@ -416,6 +574,7 @@ export const projects: Project[] = [
   },
   {
     id: 8,
+    slug: "blob-detection",
     title: "Blob Detection & Nuclei Segmentation",
     description:
       "Detection and isolation of nuclei in medical images using LoG and k-means",
@@ -459,6 +618,7 @@ export const projects: Project[] = [
   },
   {
     id: 9,
+    slug: "adaptive-median-filter",
     title: "Adaptive Median Filter Restoration",
     description:
       "Noise removal from images using adaptive window median filtering",
@@ -502,6 +662,7 @@ export const projects: Project[] = [
   },
   {
     id: 3,
+    slug: "flashify",
     title: "Flashify",
     description:
       "Modern website to create sets of study flashcards",
@@ -538,6 +699,7 @@ export const projects: Project[] = [
   },
   {
     id: 4,
+    slug: "film-production-database",
     title: "Film Production Database",
     description:
       "MySQL design and implementation for hypothetical film production company",
@@ -576,6 +738,7 @@ export const projects: Project[] = [
   },
   {
     id: 5,
+    slug: "fluid-simulation-research",
     title: "Fluid Simulation Research",
     description:
       "Research on SPH fluid simulation method and applications.",
@@ -613,5 +776,11 @@ export const projects: Project[] = [
   }
 ];
 
-// Featured projects for main page (first 3)
-export const featuredProjects = projects.slice(0, 3);
+// Featured projects for the home page, in display order
+const featuredIds = [18, 19, 10];
+export const featuredProjects = featuredIds
+  .map((id) => projects.find((p) => p.id === id))
+  .filter((p): p is Project => Boolean(p));
+
+export const getProjectBySlug = (slug: string) =>
+  projects.find((p) => p.slug === slug.toLowerCase());

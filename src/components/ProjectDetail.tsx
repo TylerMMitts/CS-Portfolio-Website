@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ArrowLeft, ExternalLink, Github, Calendar, Users, Star } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useEffect } from 'react';
+import { SlideViewer } from './SlideViewer';
 
 interface ProjectDetailProps {
   project: {
@@ -23,6 +24,9 @@ interface ProjectDetailProps {
     videoTitle?: string;
     videoDescription?: string;
     liveUrl?: string;
+    liveLabel?: string;
+    layout?: 'slides';
+    slides?: string[];
     githubUrl?: string;
     team: string;
     status: string;
@@ -44,34 +48,92 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
     }, 10);
   }, [project.id]); // Also depend on project.id to ensure it triggers when switching projects
 
+  const renderBackButton = (fixed: boolean) => (
+    <motion.button
+      onClick={() => {
+        onBack();
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }, 50);
+      }}
+      className={`${fixed ? 'fixed top-4 left-4 sm:top-6 sm:left-6 ' : ''}z-50 flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full pixel-border bg-cream/90 backdrop-blur-sm text-deep-slate hover:bg-deep-slate hover:text-cream transition-all duration-300`}
+      style={fixed ? undefined : { flexShrink: 0 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <ArrowLeft size={16} />
+      <span className="text-sm">Back to Projects</span>
+    </motion.button>
+  );
+
+  // Slides layout: a short intro, then the deck front and center
+  // Fills exactly one screen (no page scroll): compact header, then the deck
+  // takes all remaining space, sized so a full slide is visible at once.
+  if (project.layout === 'slides' && project.pdfUrl) {
+    return (
+      <div
+        className="bg-cream flex flex-col overflow-hidden"
+        style={{ position: 'fixed', inset: 0, height: '100dvh' }}
+      >
+        <header
+          className="text-center"
+          style={{ padding: '12px 16px 10px', paddingTop: 'max(12px, env(safe-area-inset-top))', flexShrink: 0 }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            {renderBackButton(false)}
+            <h1
+              className="font-bold text-deep-slate"
+              style={{ fontSize: 'clamp(1.25rem, 3vw, 2rem)', lineHeight: 1.15, margin: 0, flex: '1 1 auto', textAlign: 'center' }}
+            >
+              {project.title}
+            </h1>
+            {/* Spacer the width of the back button keeps the title centered */}
+            <div className="hidden sm:block" style={{ width: 170, flexShrink: 0 }} />
+          </div>
+          <p className="text-deep-slate/60" style={{ fontSize: '0.75rem', margin: '4px 0 0' }}>
+            {project.team.replace(/^Mentors?:\s*/, 'Mentored by ')}
+          </p>
+          <p className="text-deep-slate/80" style={{ fontSize: '0.875rem', margin: '6px auto 0', maxWidth: '44rem' }}>
+            {project.fullDescription}{' '}
+            <a
+              href={project.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: project.color, textDecoration: 'underline', whiteSpace: 'nowrap' }}
+            >
+              Open full screen
+            </a>
+          </p>
+        </header>
+
+        <div className="flex-1" style={{ minHeight: 0, padding: '0 16px 12px', width: '100%', maxWidth: 1400, margin: '0 auto' }}>
+          {project.slides && project.slides.length > 0 ? (
+            <SlideViewer slides={project.slides} title={project.title} accent={project.color} />
+          ) : (
+            <div className="bg-white rounded-lg pixel-border overflow-hidden" style={{ width: '100%', height: '100%' }}>
+              <iframe
+                src={`${project.pdfUrl}#toolbar=1&navpanes=0&view=Fit`}
+                title={project.pdfTitle || project.title}
+                style={{ display: 'block', width: '100%', height: '100%', border: 0 }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-cream relative">
       {/* Background Effects */}
       <div className="absolute inset-0 dither-bg opacity-10" />
       
-      {/* Back Button */}
-      <motion.button
-        onClick={() => {
-          // Call the onBack function first
-          onBack();
-          
-          // Then ensure we scroll to top after navigation
-          setTimeout(() => {
-            window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-          }, 50);
-        }}
-        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full pixel-border bg-cream/90 backdrop-blur-sm text-deep-slate hover:bg-deep-slate hover:text-cream transition-all duration-300"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <ArrowLeft size={16} />
-        <span className="text-sm">Back to Projects</span>
-      </motion.button>
+      {renderBackButton(true)}
 
       {/* Hero Section */}
       <motion.section
@@ -156,7 +218,7 @@ export function ProjectDetail({ project, onBack }: ProjectDetailProps) {
                     }}
                   >
                     <ExternalLink size={16} />
-                    View Live
+                    {project.liveLabel || 'View Live'}
                   </button>
                 )}
                 {project.githubUrl && (

@@ -9,13 +9,62 @@ import { PixelFrame } from './components/PixelFrame';
 import { ProjectDetail } from './components/ProjectDetail';
 import { AllProjectsPage } from './components/AllProjectsPage';
 import { ScrollBinaryTree } from './components/ScrollBinaryTree';
-import { projects } from './data/projects';
+import { projects, getProjectBySlug } from './data/projects';
+
+type View = 'portfolio' | 'projects' | 'project';
+const DEFAULT_TITLE = 'Tyler Mitts Portfolio';
+
+// Map a URL path to a view: "/" -> portfolio, "/projects" -> all projects,
+// "/<project-slug>" -> that project's page. Unknown paths fall back to home.
+function routeFromPath(pathname: string): { view: View; projectId: number | null } {
+  const slug = pathname.replace(/^\/+|\/+$/g, '');
+  if (slug === '') return { view: 'portfolio', projectId: null };
+  if (slug.toLowerCase() === 'projects') return { view: 'projects', projectId: null };
+  const project = getProjectBySlug(slug);
+  if (project) return { view: 'project', projectId: project.id };
+  return { view: 'portfolio', projectId: null };
+}
 
 export default function App() {
+  const initialRoute = routeFromPath(window.location.pathname);
   const [activeSection, setActiveSection] = useState('home');
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentView, setCurrentView] = useState<'portfolio' | 'projects' | 'project'>('portfolio');
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [currentView, setCurrentView] = useState<View>(initialRoute.view);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialRoute.projectId);
+
+  // Push a new URL and switch to the matching view
+  const navigate = (path: string) => {
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
+    }
+    const route = routeFromPath(path);
+    setCurrentView(route.view);
+    setSelectedProjectId(route.projectId);
+  };
+
+  // Keep the view in sync with the browser's back/forward buttons,
+  // and replace unknown paths with "/"
+  useEffect(() => {
+    const onPopState = () => {
+      const route = routeFromPath(window.location.pathname);
+      setCurrentView(route.view);
+      setSelectedProjectId(route.projectId);
+    };
+    window.addEventListener('popstate', onPopState);
+    if (initialRoute.view === 'portfolio' && window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/' + window.location.hash);
+    }
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Tab title reflects the current page
+  useEffect(() => {
+    const project = selectedProjectId ? projects.find(p => p.id === selectedProjectId) : null;
+    document.title =
+      currentView === 'project' && project ? `${project.title} | Tyler Mitts`
+      : currentView === 'projects' ? 'Projects | Tyler Mitts'
+      : DEFAULT_TITLE;
+  }, [currentView, selectedProjectId]);
 
   useEffect(() => {
     // Font loading optimization
@@ -54,36 +103,24 @@ export default function App() {
   };
 
   const handleProjectClick = (projectId: number) => {
-    setSelectedProjectId(projectId);
-    setCurrentView('project');
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    navigate(`/${project.slug}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBackToPortfolio = () => {
-    setCurrentView('portfolio');
-    setSelectedProjectId(null);
-    // Optionally scroll to projects section
-    setTimeout(() => {
-      const projectsElement = document.getElementById('projects');
-      if (projectsElement) {
-        projectsElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
   const handleBackToProjectsList = () => {
-    setCurrentView('projects');
-    setSelectedProjectId(null);
+    navigate('/projects');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleExploreClick = () => {
-    setCurrentView('projects');
+    navigate('/projects');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackFromAllProjects = () => {
-    setCurrentView('portfolio');
+    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
