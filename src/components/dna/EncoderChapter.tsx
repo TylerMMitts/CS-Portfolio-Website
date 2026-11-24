@@ -60,122 +60,223 @@ function prepare(d: EncoderData): Prepared {
   return { dos, feat, featMax, pcMax: Math.max(...d.pcs.map(Math.abs)), tokMax, chrStarts };
 }
 
+type Rect = [number, number, number, number];
+const lerpRect = (a: Rect, b: Rect, t: number): Rect => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t), lerp(a[3], b[3], t)];
+
 // Draws the whole encoder animation for progress p (0..1). Pure, so the
 // reduced-motion version can render still panels from the same code.
+//   1  the SNP strip
+//   2  cut into 50 windows, which lift apart into a grid
+//   3  each window becomes 4 numbers (times its gate)
+//   4  the windows line up; PCA of the whole genome gives 32 more numbers
+//   5  all of it is joined end to end: 32 + 50 x 4 = 232 numbers
+//   6  a small network turns the list into 8 tokens of 256 numbers
 function drawEncoder(ctx: CanvasRenderingContext2D, w: number, h: number, p: number, time: number, raw: EncoderData, d: Prepared, overlays = true) {
   ctx.clearRect(0, 0, w, h);
   readTheme(ctx.canvas);
+  const mono = getComputedStyle(ctx.canvas).getPropertyValue('--f-mono') || 'monospace';
+  ctx.font = `12px ${mono}`;
   const mx = Math.max(16, w * 0.05);
   const fullW = Math.min(w - mx * 2, 1000);
   const x0 = (w - fullW) / 2;
   const n = raw.n_snps;
   const nw = raw.windows.length;
+  const nf = raw.window_dim;
+  const npc = raw.pcs.length;
 
-  const split = smooth(p, 0.16, 0.34); // strip -> 50 windows
-  const squeeze = smooth(p, 0.42, 0.6); // windows -> 4 numbers each (+ PCs)
-  const tok = smooth(p, 0.72, 0.9); // -> 8 x 256 tokens
+  const split = smooth(p, 0.1, 0.24); // strip -> grid of windows
+  const feat = smooth(p, 0.27, 0.4); // window barcode -> 4 numbers
+  const line = smooth(p, 0.42, 0.52); // grid -> one row
+  const pca = smooth(p, 0.5, 0.62); // whole genome -> 32 PCs
+  const cat = smooth(p, 0.65, 0.77); // join into one list
+  const tok = smooth(p, 0.81, 0.94); // -> tokens
 
   // drawing area between the stage text (top) and the legend (bottom)
-  const top = overlays ? Math.min(h * 0.42, Math.max(230, h * 0.3)) : 12;
+  const top = overlays ? Math.min(h * 0.42, Math.max(240, h * 0.31)) : 12;
   const bottom = overlays ? h - Math.max(80, h * 0.11) : h - 12;
   const avail = bottom - top;
-  const mid = top + avail * 0.42;
-  const bandH = Math.min(avail * 0.34, 150);
-  const bandY = mid - bandH / 2;
 
-  // window layout: gaps open up between windows as `split` grows
-  const gap = Math.max(2, fullW * 0.006) * split;
-  const segW = (fullW - gap * (nw - 1)) / nw;
-  const winX = (i: number) => x0 + i * (segW + gap);
+  // stage 1: the strip
+  const bandH = Math.min(avail * 0.3, 140);
+  const bandY = top + avail * 0.3 - bandH / 2;
+  const stripRect = (i: number): Rect => [
+    x0 + (raw.windows[i].a / n) * fullW,
+    bandY,
+    ((raw.windows[i].b - raw.windows[i].a + 1) / n) * fullW,
+    bandH,
+  ];
+  // stage 2: grid of windows (5 per row on phones, 10 on wide screens)
+  const C = fullW < 600 ? 5 : 10;
+  const R = Math.ceil(nw / C);
+  const g = Math.max(6, fullW * 0.014);
+  const tileW = (fullW - g * (C - 1)) / C;
+  const gridH = Math.min(avail * 0.62, R * 60);
+  const tileH = (gridH - g * (R - 1)) / R;
+  const gridRect = (i: number): Rect => [x0 + (i % C) * (tileW + g), top + Math.floor(i / C) * (tileH + g), tileW, tileH];
+  // stage 3: a column of 4 numbers inside each tile
+  const colInTile = (i: number): Rect => {
+    const r = gridRect(i);
+    const cw = Math.min(tileW * 0.34, 22);
+    return [r[0] + (r[2] - cw) / 2, r[1] + r[3] * 0.08, cw, r[3] * 0.84];
+  };
+  // stage 4: one row of 50 columns
+  const rg = Math.max(2, fullW * 0.005);
+  const segW = (fullW - rg * (nw - 1)) / nw;
+  const rowH = Math.min(avail * 0.24, 96);
+  const rowY = top + avail * 0.08;
+  const colInRow = (i: number): Rect => [x0 + i * (segW + rg), rowY, segW, rowH];
+  // PCs below the row
+  const pcW = Math.min(fullW, 520);
+  const px0 = (w - pcW) / 2;
+  const bw = pcW / npc;
+  const pcMid = rowY + rowH + Math.min(avail * 0.3, 120);
+  const pcH = Math.min(avail * 0.13, 50);
+  // stage 5: one list of 232 cells
+  const total = npc + nw * nf;
+  const vw = fullW / total;
+  const vecH = Math.min(avail * 0.16, 64);
+  const vecY = top + avail * 0.36 - vecH / 2 - tok * avail * 0.2;
+  const vecCell = (j: number): Rect => [x0 + j * vw, vecY, Math.max(1, vw), vecH];
 
-  // 1 + 2: dosage barcode, then cut into windows
-  if (squeeze < 1) {
-    ctx.globalAlpha = 1 - squeeze;
+  // window position at the current stage
+  const winRect = (i: number) => (split < 1 ? lerpRect(stripRect(i), gridRect(i), split) : gridRect(i));
+
+  // 1 + 2: barcode, moving from the strip into the grid
+  if (feat < 1) {
     raw.windows.forEach((win, i) => {
+      const [rx, ry, rw, rh] = winRect(i);
       const len = win.b - win.a + 1;
-      const xs = winX(i);
-      const cols = Math.max(1, Math.round(segW)); // about one column per pixel
+      const cols = Math.max(1, Math.round(rw));
+      ctx.globalAlpha = 1 - feat;
       for (let c = 0; c < cols; c++) {
         // one SNP per column (a sample): averaging neighbours would blur 0s and 2s into grey
         const v = d.dos[Math.min(n - 1, win.a + Math.floor(((c + 0.5) / cols) * len))];
         ctx.fillStyle = dosageColor(v < 0 ? 1 : v);
-        ctx.fillRect(xs + (c / cols) * segW, bandY, Math.ceil(segW / cols) + 0.5, bandH);
+        ctx.fillRect(rx + (c / cols) * rw, ry, Math.ceil(rw / cols) + 0.5, rh);
+      }
+      if (overlays && split > 0.6 && tileW > 44) {
+        ctx.globalAlpha = (split - 0.6) * 2.5 * (1 - feat) * 0.85;
+        ctx.fillStyle = rgb(FG);
+        ctx.textAlign = 'left';
+        ctx.fillText(`w${i + 1}`, rx + 3, ry - 4);
       }
     });
     // chromosome ticks under the strip
-    if (overlays || split < 0.5) {
+    if (overlays && split < 1) {
       ctx.fillStyle = rgb(FG);
-      ctx.font = `12px ${getComputedStyle(ctx.canvas).getPropertyValue('--f-mono') || 'monospace'}`;
       ctx.textAlign = 'left';
       d.chrStarts.forEach((c, k) => {
-        const wi = raw.windows.findIndex((x) => x.a === c.at);
-        const x = winX(wi);
-        ctx.globalAlpha = (1 - squeeze) * 0.7;
+        const x = x0 + (c.at / n) * fullW;
+        ctx.globalAlpha = (1 - split) * 0.7;
         ctx.fillRect(x, bandY + bandH + 4, 1, 8);
         if (fullW > 420 || k % 2 === 0) ctx.fillText(`chr ${c.chr}`, x + 3, bandY + bandH + 22);
       });
     }
   }
 
-  // 3: each window -> 4 numbers (scaled by its gate), plus 32 PCs underneath
-  if (squeeze > 0 && tok < 1) {
-    const fade = squeeze * (1 - tok);
-    const cellH = lerp(bandH, bandH / raw.window_dim, squeeze) * 0.92;
-    const colH = cellH * raw.window_dim + (raw.window_dim - 1) * 2;
-    const cy0 = mid - colH / 2;
+  // 3 + 4: 4 numbers per window (each times its gate), then the windows line up
+  const cellOf = (i: number, k: number): Rect => {
+    const col = line > 0 ? lerpRect(colInTile(i), colInRow(i), line) : colInTile(i);
+    const ch = (col[3] - (nf - 1) * 2) / nf;
+    return [col[0], col[1] + k * (ch + 2), col[2], ch];
+  };
+  if (feat > 0 && tok < 1) {
     raw.windows.forEach((win, i) => {
-      const xs = winX(i);
-      for (let k = 0; k < raw.window_dim; k++) {
-        ctx.globalAlpha = fade;
+      for (let k = 0; k < nf; k++) {
+        const r = cat > 0 ? lerpRect(cellOf(i, k), vecCell(npc + i * nf + k), cat) : cellOf(i, k);
+        ctx.globalAlpha = feat * (1 - tok);
         ctx.fillStyle = diverge((d.feat[i][k] / d.featMax) * 1.4);
-        ctx.fillRect(xs, cy0 + k * (cellH + 2), segW, cellH);
+        ctx.fillRect(r[0], r[1], r[2], r[3]);
       }
       // gate: a dot above the column, filled by how open it is
-      ctx.globalAlpha = fade;
-      const r = Math.max(2, Math.min(5, segW * 0.35));
-      ctx.beginPath();
-      ctx.arc(xs + segW / 2, cy0 - r - 6, r, 0, Math.PI * 2);
-      ctx.strokeStyle = rgb(FG);
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.globalAlpha = fade * win.gate;
-      ctx.fillStyle = rgb(GOLD);
-      ctx.fill();
+      if (cat < 1) {
+        const c0 = cellOf(i, 0);
+        const rad = Math.max(1.8, Math.min(5, c0[2] * 0.35));
+        ctx.globalAlpha = feat * (1 - cat);
+        ctx.beginPath();
+        ctx.arc(c0[0] + c0[2] / 2, c0[1] - rad - 5, rad, 0, Math.PI * 2);
+        ctx.strokeStyle = rgb(FG);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.globalAlpha = feat * (1 - cat) * win.gate;
+        ctx.fillStyle = rgb(GOLD);
+        ctx.fill();
+      }
     });
-    // 32 PCs as bars around their own midline
-    const pcW = Math.min(fullW, 520);
-    const px0 = (w - pcW) / 2;
-    const bw = pcW / raw.pcs.length;
-    const pcMid = cy0 + colH + Math.min(avail * 0.24, 90);
-    const pcH = Math.min(avail * 0.16, 60);
+  }
+
+  // 4: PCA of the whole genome: a faint full strip condenses into 32 bars
+  if (pca > 0 && tok < 1) {
+    if (pca < 1) {
+      ctx.globalAlpha = Math.sin(pca * Math.PI) * 0.6;
+      const cols = Math.round(fullW / 2);
+      for (let c = 0; c < cols; c++) {
+        const v = d.dos[Math.floor(((c + 0.5) / cols) * n)];
+        ctx.fillStyle = dosageColor(v < 0 ? 1 : v);
+        const wcol = lerp(fullW / cols, 0.5, pca);
+        ctx.fillRect(lerp(x0 + c * (fullW / cols), w / 2, pca * 0.8), pcMid - pcH, wcol + 0.5, pcH * 2);
+      }
+    }
     raw.pcs.forEach((v, i) => {
-      const grow = smooth(squeeze, 0.4 + (i / raw.pcs.length) * 0.3, 1);
+      const grow = smooth(pca, 0.35 + (i / npc) * 0.4, 1);
       const len = (v / d.pcMax) * pcH * grow;
-      ctx.globalAlpha = fade * grow;
-      ctx.fillStyle = v >= 0 ? rgb(GOLD) : rgb(BLUE);
-      ctx.fillRect(px0 + i * bw, len >= 0 ? pcMid - len : pcMid, Math.max(1, bw * 0.7), Math.abs(len));
+      const bar: Rect = [px0 + i * bw, len >= 0 ? pcMid - len : pcMid, Math.max(1, bw * 0.7), Math.abs(len)];
+      const r = cat > 0 ? lerpRect(bar, vecCell(i), cat) : bar;
+      ctx.globalAlpha = grow * (1 - tok);
+      ctx.fillStyle = cat > 0.5 ? diverge((v / d.pcMax) * 1.4) : v >= 0 ? rgb(GOLD) : rgb(BLUE);
+      ctx.fillRect(r[0], r[1], r[2], r[3]);
     });
-    if (overlays) {
-      ctx.globalAlpha = fade * 0.8;
+    if (overlays && cat < 1) {
+      ctx.globalAlpha = pca * (1 - cat) * 0.85;
       ctx.fillStyle = rgb(FG);
       ctx.textAlign = 'center';
-      ctx.fillText('32 PCs: how this line is related to the others', w / 2, pcMid + pcH + 18);
+      ctx.fillText('whole genome → PCA → 32 numbers', w / 2, pcMid + pcH + 20);
     }
   }
 
-  // 4: 8 x 256 tokens, diverging colour, gently pulsing
+  // 5: labels under the joined list
+  if (overlays && cat > 0 && tok < 1) {
+    ctx.globalAlpha = cat * (1 - tok) * 0.85;
+    ctx.fillStyle = rgb(FG);
+    ctx.strokeStyle = rgb(FG);
+    ctx.lineWidth = 1;
+    const y = vecY + vecH + 10;
+    const seg = (a: number, b: number, label: string) => {
+      ctx.beginPath();
+      ctx.moveTo(a + 1, y);
+      ctx.lineTo(a + 1, y + 5);
+      ctx.lineTo(b - 1, y + 5);
+      ctx.lineTo(b - 1, y);
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillText(label, (a + b) / 2, y + 22);
+    };
+    seg(x0, x0 + npc * vw, '32 PCs');
+    seg(x0 + npc * vw, x0 + fullW, '50 windows × 4 = 200');
+    ctx.font = `600 14px ${mono}`;
+    ctx.fillText(`${total} numbers`, w / 2, vecY - 12);
+    ctx.font = `12px ${mono}`;
+  }
+
+  // 6: a small network turns the list into 8 x 256 tokens, gently pulsing
   if (tok > 0) {
-    const gridW = Math.min(fullW, 1000);
-    const gx0 = (w - gridW) / 2;
-    const cell = gridW / 256;
+    if (overlays && tok < 0.7) {
+      ctx.globalAlpha = Math.sin((tok / 0.7) * Math.PI) * 0.9;
+      ctx.fillStyle = rgb(FG);
+      ctx.textAlign = 'center';
+      ctx.fillText('↓ small neural network (MLP) ↓', w / 2, top + avail * 0.36);
+    }
+    const gridW2 = Math.min(fullW, 1000);
+    const gx0 = (w - gridW2) / 2;
+    const cell = gridW2 / 256;
     const rowGap = Math.max(4, h * 0.012);
-    const gridH = Math.min(avail * 0.85, 420);
-    const th = (gridH - rowGap * 7) / 8;
-    const gy0 = top + (avail - gridH) / 2;
-    const pulse = p >= 0.9 ? 1 : 0;
+    const gH = Math.min(avail * 0.55, 340);
+    const th = (gH - rowGap * 7) / 8;
+    const gy0 = top + avail * 0.42;
+    const pulse = p >= 0.94 ? 1 : 0;
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 256; c++) {
-        const appear = smooth(tok, (c / 256) * 0.6, (c / 256) * 0.6 + 0.4);
+        const appear = smooth(tok, 0.2 + (c / 256) * 0.45, 0.2 + (c / 256) * 0.45 + 0.35);
         if (appear <= 0) continue;
         let v = raw.tokens[r][c] / d.tokMax;
         if (pulse) v *= 0.75 + 0.25 * Math.sin(time * 2.2 - c * 0.09 + r * 0.7);
@@ -192,15 +293,21 @@ const STAGES = [
   {
     at: 0,
     title: '10,000 SNPs',
-    body: "Each SNP is a spot where plants differ, written as 0, 1 or 2 copies of one version. Any genotyped population can be written this way.",
+    body: 'Each SNP is a spot where plants differ, written as 0, 1 or 2 copies of one version. Any genotyped population can be written this way.',
   },
-  { at: 0.25, title: '50 windows of 200', body: 'The SNPs are cut, in genome order, into windows of 200 neighbours. No window crosses a chromosome.' },
+  { at: 0.11, title: 'Cut into 50 windows', body: 'The SNPs are cut, in genome order, into 50 windows of 200 neighbours. No window crosses a chromosome.' },
   {
-    at: 0.5,
+    at: 0.27,
     title: '4 numbers per window',
-    body: "Each window has its own learned map to 4 numbers, and a gate that shuts it if it doesn't help. Here 49 of 50 stay open. 32 PCs of the whole genome add how lines are related.",
+    body: "Each window has its own small learned map to 4 numbers, and a gate (the dot) that shuts it if it doesn't help. Here 49 of 50 stay open.",
   },
-  { at: 0.8, title: '8 tokens × 256 numbers', body: 'A small network turns all of it into the tokens the image model reads.' },
+  {
+    at: 0.47,
+    title: '32 PCs for relatedness',
+    body: 'Separately, principal components of the whole genome give 32 numbers that capture how this line is related to the others.',
+  },
+  { at: 0.64, title: 'Joined into one list', body: 'The 32 PCs and the 50 × 4 window numbers are joined end to end: 232 numbers.' },
+  { at: 0.8, title: '8 tokens × 256 numbers', body: 'A small neural network turns those 232 numbers into the 8 tokens the image model reads.' },
 ];
 
 function useEncoderData(enabled: boolean) {
@@ -312,19 +419,19 @@ function EncoderScroll({ d, raw }: { d: Prepared; raw: EncoderData }) {
   }, []);
 
   return (
-    <div ref={trackRef} className="pin-track" style={{ height: '420vh' }}>
+    <div ref={trackRef} className="pin-track" style={{ height: '600vh' }}>
       <div className="pin">
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label="Animation: one line's 10,000 SNPs as a coloured strip, cut into 50 windows of 200, each window reduced to 4 numbers behind a gate alongside 32 genome-wide PCs, then turned into 8 tokens of 256 numbers."
+          aria-label="Animation: one line's 10,000 SNPs as a coloured strip, cut into 50 windows of 200 that separate into a grid; each window becomes 4 numbers behind a gate; PCA of the whole genome gives 32 more; all 232 numbers are joined into one list, and a small neural network turns it into 8 tokens of 256 numbers."
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         />
         <div style={{ position: 'absolute', left: 20, right: 20, top: 'max(70px, 7vh)', maxWidth: 560, marginInline: 'auto' }}>
           {STAGES.map((s, i) => (
             <div key={s.title} ref={(el) => (stageRefs.current[i] = el)} style={{ position: 'absolute', inset: 0, opacity: i === 0 ? 1 : 0, transition: 'opacity 0.35s' }}>
               <span className="mono" style={{ color: 'var(--accent)' }}>
-                Step {i + 1} of 4
+                Step {i + 1} of {STAGES.length}
               </span>
               <h3 style={{ margin: '4px 0 6px' }}>{s.title}</h3>
               <p style={{ margin: 0, maxWidth: 460 }}>{s.body}</p>
@@ -342,7 +449,7 @@ function EncoderScroll({ d, raw }: { d: Prepared; raw: EncoderData }) {
 // Reduced motion: the same drawing, as four still panels
 function EncoderStills({ d, raw }: { d: Prepared; raw: EncoderData }) {
   const refs = useRef<(HTMLCanvasElement | null)[]>([]);
-  const ps = [0.05, 0.38, 0.66, 1];
+  const ps = [0.05, 0.25, 0.41, 0.62, 0.78, 1];
   useEffect(() => {
     refs.current.forEach((c, i) => {
       if (!c) return;

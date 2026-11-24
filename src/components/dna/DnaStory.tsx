@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 import './dna.css';
 import { ASSET, frameUrls } from './hooks';
 import { ScrubCanvas } from './ScrubCanvas';
 import { Ripple } from './Ripple';
 import { EncoderChapter } from './EncoderChapter';
 import { DenoiseSlider } from './DenoiseSlider';
+import { ArchitectureChapter } from './ArchitectureChapter';
 import { AnswerKeyChapter } from './AccuracyChapter';
 import { GeneHeatmaps } from './GeneHeatmaps';
 import { MouseChapter } from './MouseChapter';
@@ -106,12 +107,14 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
             endFraction={0.66}
             endOffset={-0.08}
             label="Random noise gradually denoising into a maize root cross-section generated from DNA"
-            backdrop={<div ref={backdropRef} className="cold-backdrop" aria-hidden />}
+            backdrop={<ColdBackdrop ref={backdropRef} />}
             onProgress={(p) => {
-              // the gold disc comes up while the root's background is cut away (steps 33 to 44)
-              if (backdropRef.current) {
+              // abstract shapes come up while the root's background is cut away (steps 33 to 44)
+              const el = backdropRef.current;
+              if (el) {
                 const k = Math.max(0, Math.min(1, (p - 0.45) / 0.24));
-                backdropRef.current.style.opacity = String(k * k * (3 - 2 * k));
+                el.style.opacity = String(k * k * (3 - 2 * k));
+                el.style.setProperty('--k', String(k));
               }
               if (titleRef.current) {
                 titleRef.current.style.opacity = String(Math.max(0, 1 - p / 0.3));
@@ -210,21 +213,29 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                   >
                     stele = 0.95 mm
                   </div>
-                  <span className="scrawl ink" style={{ fontSize: '1.5rem' }}>
+                  <span className="scrawl ink">
                     one number, planned ahead
                   </span>
                 </ComparisonRow>
                 <ComparisonRow label="DNA to Display">
                   <img
-                    src={`${ASSET}pipeline/gen_root.png`}
+                    src={`${ASSET}denoise/step_50.webp`}
                     alt="A root cross-section generated from the plant's DNA"
                     loading="lazy"
                     style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
                   />
                   <Arrow />
-                  <span className="scrawl ink" style={{ fontSize: '1.6rem' }}>
-                    measure anything
-                  </span>
+                  <figure style={{ margin: 0 }}>
+                    <img
+                      src={`${ASSET}pipeline/gen_root_measured.webp`}
+                      alt="The same generated root, segmented: root, stele and 14 vessels outlined so they can be measured"
+                      loading="lazy"
+                      style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
+                    />
+                    <figcaption className="scrawl ink" style={{ marginTop: 6 }}>
+                      measure anything
+                    </figcaption>
+                  </figure>
                 </ComparisonRow>
               </div>
             </div>
@@ -238,7 +249,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
         <Ripple className="ch field-blue" id="d2d-see" ariaLabelledby="d2d-see-h">
           <div className="wrap">
             <span className="kicker">03 · Learning to see</span>
-            <h2 id="d2d-see-h">Squeeze the picture first</h2>
+            <h2 id="d2d-see-h">Compress the picture first</h2>
             <p style={{ maxWidth: 620 }}>
               Before it generates anything, the model learns a compressed code for root images, 48× smaller than the image
               itself. Generating in that code is fast enough to run on a laptop.
@@ -270,12 +281,15 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
               ))}
             </div>
             <span className="scrawl" style={{ marginTop: 34 }}>
-              encoder squeezes it, decoder rebuilds it
+              the encoder compresses it, the decoder rebuilds it
             </span>
           </div>
         </Ripple>
 
-        {/* 4 · Denoising slider */}
+        {/* 4 · How the models fit together */}
+        <ArchitectureChapter />
+
+        {/* 5 · Denoising slider */}
         <DenoiseSlider />
 
         {/* 5 · Known-answer test on the synthetic (RIL) population, with the gene dial */}
@@ -297,7 +311,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
         {/* 9 · Close */}
         <section className="ch field-gold" aria-labelledby="d2d-close-h">
           <div className="wrap narrow">
-            <span className="kicker">09 · That's the story</span>
+            <span className="kicker">10 · That's the story</span>
             <h2 id="d2d-close-h" className="visually-hidden">
               Summary and credits
             </h2>
@@ -378,3 +392,34 @@ function Arrow() {
     </svg>
   );
 }
+
+// Abstract shapes behind the cut-out root: a gold field, a blue counter-shape, a few arcs and dots.
+// They drift into place as the root forms (driven by --k from the scroll position).
+const ColdBackdrop = forwardRef<HTMLDivElement>(function ColdBackdrop(_, ref) {
+  return (
+    <div ref={ref} className="cold-backdrop" aria-hidden>
+      <svg viewBox="-20 -20 140 140" width="100%" height="100%">
+        <g className="cb-gold">
+          <path d="M34 6 C56 -4 86 8 92 32 C98 54 80 66 68 80 C56 94 26 94 14 74 C2 54 12 16 34 6Z" fill="#F1B82D" />
+        </g>
+        <g className="cb-blue">
+          <path d="M74 58 C90 54 106 68 103 86 C100 102 82 108 68 100 C54 92 58 62 74 58Z" fill="#1F3F8F" />
+          <path d="M-6 18 C2 8 16 10 18 22 C20 34 8 40 0 36 C-8 32 -12 26 -6 18Z" fill="#4E7BE8" opacity="0.85" />
+        </g>
+        <g className="cb-lines" fill="none" stroke="#F1E6CC" strokeLinecap="round">
+          <path d="M-8 70 A58 58 0 0 1 30 -6" strokeWidth="0.7" strokeDasharray="1.5 3" />
+          <path d="M108 30 A62 62 0 0 1 84 112" strokeWidth="0.8" />
+          <path d="M6 104 C30 116 56 112 70 104" strokeWidth="0.6" />
+        </g>
+        <g className="cb-dots" fill="#F1E6CC">
+          {Array.from({ length: 20 }, (_, i) => (
+            <circle key={i} cx={96 + (i % 5) * 4} cy={-6 + Math.floor(i / 5) * 4} r="0.8" />
+          ))}
+          {Array.from({ length: 12 }, (_, i) => (
+            <circle key={`b${i}`} cx={-14 + (i % 4) * 4} cy={92 + Math.floor(i / 4) * 4} r="0.8" fill="#F1B82D" />
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
+});

@@ -32,7 +32,7 @@ export function WhichIsReal() {
   return (
     <section className="ch" id="d2d-game" aria-labelledby="d2d-game-h">
       <div className="wrap" style={{ maxWidth: 820 }}>
-        <span className="kicker">08 · Your turn</span>
+        <span className="kicker">09 · Your turn</span>
         <h2 id="d2d-game-h">Which ones are real?</h2>
         <p>
           Some of these are real maize roots photographed through a microscope. The rest were generated from DNA. Every plant

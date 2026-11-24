@@ -38,7 +38,7 @@ export function AnswerKeyChapter() {
     <section ref={ref} id="d2d-accuracy" aria-labelledby="d2d-acc-h">
       <div className="ch">
         <div className="wrap">
-          <span className="kicker">05 · Does it actually work?</span>
+          <span className="kicker">06 · Does it actually work?</span>
           <h2 id="d2d-acc-h">A test with an answer key</h2>
           <div className="two-col" style={{ alignItems: 'start' }}>
             <div>

@@ -18,7 +18,7 @@ export function DenoiseSlider() {
   return (
     <section ref={ref} className="ch" id="d2d-denoise" aria-labelledby="d2d-denoise-h">
       <div className="wrap">
-        <span className="kicker">04 · Denoising, step by step</span>
+        <span className="kicker">05 · Denoising, step by step</span>
         <h2 id="d2d-denoise-h">Your turn to drive</h2>
         <p style={{ maxWidth: 640 }}>
           Same plant, same starting noise as the top of the page. Drag the slider and watch both views at once: the compressed

@@ -80,6 +80,12 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
       ctx.globalCompositeOperation = 'destination-out';
       ctx.globalAlpha = k;
       ctx.drawImage(cutRef.current!, x, y, s, s);
+      // the image's anti-aliased square edge survives the mask at partial alpha; clear a thin band along it
+      const e = Math.max(3, s * 0.008);
+      ctx.beginPath();
+      ctx.rect(x - 2, y - 2, s + 4, s + 4);
+      ctx.rect(x + e, y + e, s - 2 * e, s - 2 * e);
+      ctx.fill('evenodd');
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
     }

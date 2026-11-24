@@ -50,7 +50,7 @@ export function MouseChapter() {
     <section ref={ref} className="field-blue" id="d2d-mouse" aria-labelledby="d2d-mouse-h">
       <div className="ch" style={{ paddingBottom: '6vh' }}>
         <div className="wrap">
-          <span className="kicker">07 · Not just maize</span>
+          <span className="kicker">08 · Not just maize</span>
           <h2 id="d2d-mouse-h">The method doesn't know it's looking at plants</h2>
           <p style={{ maxWidth: 640 }}>
             Same pipeline, different organism, different kind of image: skeletal X-rays of mice.

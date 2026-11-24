@@ -30,7 +30,7 @@ export function GeneHeatmaps() {
   return (
     <section className="ch" id="d2d-maps" aria-labelledby="d2d-maps-h">
       <div className="wrap">
-        <span className="kicker">06 · Where the DNA shows up</span>
+        <span className="kicker">07 · Where the DNA shows up</span>
         <h2 id="d2d-maps-h">Swap one gene, see where the root changes</h2>
         <p style={{ maxWidth: 680 }}>
           Back in the synthetic population, where we know what every gene does. For each designed gene we swapped its
