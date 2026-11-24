@@ -384,31 +384,23 @@ function Arrow() {
   );
 }
 
-// A gold zig-zag behind the cut-out root: sharp, uneven and off-centre, to contrast with the
-// round root. It draws itself in as the root forms (driven by --k from the scroll position).
+// One gold zig-zag behind the cut-out root: left, right, left, right, left, from the top of
+// the root to the bottom, with uneven reach and spacing so it isn't symmetrical. It draws itself
+// in from top to bottom as the root forms (driven by --k from the scroll position).
 const ColdBackdrop = forwardRef<HTMLDivElement>(function ColdBackdrop(_, ref) {
   return (
     <div ref={ref} className="cold-backdrop" aria-hidden>
       <svg viewBox="-20 -20 140 140" width="100%" height="100%">
         <polyline
           className="cb-zig"
-          points="-26,86 -6,58 8,80 26,36 42,66 62,14 76,46 92,4 104,30 128,-2"
+          points="4,4 96,22 2,50 94,74 6,96"
           pathLength={1}
           fill="none"
           stroke="#F1B82D"
-          strokeWidth="9"
+          strokeWidth="6"
           strokeLinejoin="miter"
-          strokeMiterlimit={10}
-        />
-        <polyline
-          className="cb-zig cb-zig-thin"
-          points="-24,112 0,96 12,108 34,84 46,100 70,76 84,94 110,70 126,82"
-          pathLength={1}
-          fill="none"
-          stroke="#F1B82D"
-          strokeWidth="1.6"
-          strokeLinejoin="miter"
-          strokeMiterlimit={10}
+          strokeLinecap="square"
+          strokeMiterlimit={12}
         />
       </svg>
     </div>

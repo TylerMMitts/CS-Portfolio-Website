@@ -345,7 +345,6 @@
   pointer-events: none;
 }
 .d2d .cold-backdrop .cb-zig { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--k)); }
-.d2d .cold-backdrop .cb-zig-thin { opacity: 0.7; stroke-dashoffset: calc(1 - var(--k) * var(--k)); }
 @media (min-aspect-ratio: 10/13) {
   .d2d .cold-backdrop { width: calc(66vmin * 1.75); }
 }
