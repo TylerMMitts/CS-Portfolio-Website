@@ -85,7 +85,7 @@ export function DenoiseSlider() {
         </div>
 
         <p className="pull" style={{ marginTop: 36 }}>
-          “Fifty small steps. At each one the model asks: what would this plant's root look like? The DNA tokens steer every step.”
+          Fifty small steps. At each one the model asks: what would this plant's root look like? The DNA tokens steer every step.
         </p>
       </div>
     </section>

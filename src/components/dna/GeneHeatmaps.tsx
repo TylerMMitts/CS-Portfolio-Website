@@ -103,7 +103,7 @@ export function GeneHeatmaps() {
               <p className="mono" style={{ margin: '8px 0 0' }}>
                 designed to act on: {g.tissue}
                 <br />
-                map points to: {g.found} {g.control ? '' : '✓'}
+                map points to: {g.found}
               </p>
               {g.note && <p style={{ margin: '10px 0 0', fontWeight: 600 }}>{g.note}</p>}
             </div>
@@ -111,7 +111,7 @@ export function GeneHeatmaps() {
         </div>
 
         <p className="pull" style={{ marginTop: 40 }}>
-          “12 of 14 designed genes point to the right tissue, and the control regions stay quiet.”
+          12 of 14 designed genes point to the right tissue, and the control regions stay quiet.
         </p>
         <p className="note-honest" style={{ maxWidth: 680 }}>
           These are averages over many plants in a population we designed, so we can check them against the answer key. On

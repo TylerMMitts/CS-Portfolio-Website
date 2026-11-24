@@ -136,7 +136,7 @@
 .d2d .tilt { transform: rotate(calc(var(--tilt) * var(--r, 0deg))); }
 
 /* ---------- layout ---------- */
-.d2d .ch { position: relative; padding: 16vh 20px; }
+.d2d .ch { position: relative; padding: clamp(56px, 9vh, 104px) 20px; }
 .d2d .wrap { max-width: 1120px; margin: 0 auto; position: relative; }
 .d2d .narrow { max-width: 720px; }
 .d2d .field-gold, .d2d .field-blue { position: relative; isolation: isolate; }

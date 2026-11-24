@@ -144,7 +144,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 Display
               </h1>
               <p className="pull" style={{ fontSize: 'clamp(1.25rem, 4.2vw, 1.9rem)', margin: '14px auto 0', maxWidth: '26ch', textShadow: '0 2px 18px rgb(var(--bg-rgb))' }}>
-                Generating images of a plant's anatomy directly from its DNA.
+                Generating images of anatomy directly from DNA.
               </p>
             </div>
             <div
@@ -304,7 +304,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
               Summary and credits
             </h2>
             <p className="pull" style={{ fontSize: 'clamp(1.8rem, 5.5vw, 3rem)', maxWidth: '22ch' }}>
-              “From DNA to an image you can measure, for traits you haven't thought of yet, in a plant root or a mouse.”
+              From DNA to an image you can measure, for traits you haven't thought of yet, in a plant root or a mouse.
             </p>
             <div style={{ marginTop: 40 }}>
               <p style={{ fontSize: 20, marginBottom: 6 }}>

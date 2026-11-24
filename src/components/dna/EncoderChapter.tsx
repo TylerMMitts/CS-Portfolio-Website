@@ -339,7 +339,7 @@ export function EncoderChapter() {
       {prepared && raw ? reduced ? <EncoderStills d={prepared} raw={raw} /> : <EncoderScroll d={prepared} raw={raw} /> : <div style={{ height: '100vh' }} />}
       <div className="ch" style={{ paddingTop: '4vh' }}>
         <div className="wrap narrow">
-          <p className="pull">“10,000 SNPs → 8 tokens of 256 numbers. The image model reads these at every step.”</p>
+          <p className="pull">10,000 SNPs become 8 tokens of 256 numbers. The image model reads these at every step.</p>
         </div>
       </div>
     </section>

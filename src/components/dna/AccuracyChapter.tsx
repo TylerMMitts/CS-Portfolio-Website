@@ -136,7 +136,7 @@ export function AnswerKeyChapter() {
               />
             </figure>
             <div>
-              <p className="pull">“Change one gene → the stele grows 19%. It grew in 99% of 256 line × seed tests.”</p>
+              <p className="pull">Change one gene and the stele grows 19%. It grew in 99% of 256 line × seed tests.</p>
               <p style={{ maxWidth: 440 }}>
                 Watch the gold outline widen as the version goes up.
               </p>

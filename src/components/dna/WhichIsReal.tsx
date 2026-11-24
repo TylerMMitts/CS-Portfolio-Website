@@ -69,7 +69,7 @@ export function WhichIsReal() {
                           {a.kind === 'real' ? 'REAL' : 'GENERATED'}
                         </span>
                         <span className="mark" style={{ background: right ? 'var(--paper)' : 'var(--ink)', color: right ? 'var(--ink)' : 'var(--paper)' }}>
-                          {right ? '✓ you got it' : '✗ missed'}
+                          {right ? 'you got it' : 'missed'}
                         </span>
                       </>
                     )}

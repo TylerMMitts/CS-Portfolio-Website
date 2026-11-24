@@ -126,7 +126,7 @@ export function MouseChapter() {
               <ul style={{ paddingLeft: 20 }}>
                 <li>8,798 mice from the International Mouse Phenotyping Consortium (IMPC), one X-ray each.</li>
                 <li>
-                  Instead of 43,788 inherited DNA markers, each mouse's “genotype” is which of 718 genes was knocked out, plus
+                  Instead of 43,788 inherited DNA markers, each mouse's genotype is which of 718 genes was knocked out, plus
                   its sex and imaging month.
                 </li>
                 <li>The image model, the encoder and the analysis are the same code as for maize.</li>

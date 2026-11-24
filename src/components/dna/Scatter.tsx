@@ -18,7 +18,7 @@ interface Props {
 
 const W = 400;
 const H = 360;
-const M = { l: 14, r: 12, t: 12, b: 14 };
+const M = { l: 34, r: 12, t: 12, b: 38 }; // room for the axis titles
 
 const fmt = (v: number) => v.toFixed(2);
 
@@ -107,6 +107,12 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
           </svg>
           {baseName} r = {fmt(t.rBase)}
         </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, opacity: 0.8 }}>
+          <svg width="22" height="16" aria-hidden>
+            <line x1="1" y1="15" x2="21" y2="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" />
+          </svg>
+          perfect prediction
+        </span>
       </div>
 
       <div style={{ position: 'relative' }}>
@@ -122,10 +128,24 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
           onKeyDown={onKey}
           style={{ width: '100%', height: 'auto', display: 'block', background: 'rgb(var(--fg-rgb) / .04)', border: '1.5px solid rgb(var(--fg-rgb) / .25)', borderRadius: 4, color: 'var(--fg)', touchAction: 'pan-y' }}
         >
-          <line x1={scales.diag[0]} y1={scales.diag[1]} x2={scales.diag[2]} y2={scales.diag[3]} stroke="currentColor" strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 5" />
-          <text x={W - M.r - 4} y={M.t + 14} textAnchor="end" fill="currentColor" opacity="0.6" style={{ font: '12px var(--f-mono)' }}>
-            perfect prediction ↗
+          {/* axes, with their titles along them */}
+          <line x1={M.l} y1={H - M.b} x2={W - M.r} y2={H - M.b} stroke="currentColor" strokeOpacity="0.5" />
+          <line x1={M.l} y1={M.t} x2={M.l} y2={H - M.b} stroke="currentColor" strokeOpacity="0.5" />
+          <text x={(M.l + W - M.r) / 2} y={H - 12} textAnchor="middle" fill="currentColor" opacity="0.85" style={{ font: '13px var(--f-mono)' }}>
+            {xLabel(t)}
           </text>
+          <text
+            x={16}
+            y={(M.t + H - M.b) / 2}
+            textAnchor="middle"
+            fill="currentColor"
+            opacity="0.85"
+            transform={`rotate(-90 16 ${(M.t + H - M.b) / 2})`}
+            style={{ font: '13px var(--f-mono)' }}
+          >
+            prediction (standardised)
+          </text>
+          <line x1={scales.diag[0]} y1={scales.diag[1]} x2={scales.diag[2]} y2={scales.diag[3]} stroke="currentColor" strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 5" />
           {t.points.map((pt, i) => (
             <rect key={`b${i}`} x={scales.sx(pt.x) - 2.2} y={scales.sy(pt.yBase) - 2.2} width="4.4" height="4.4" fill="#8C8A84" opacity={sel === null || sel === i ? 0.75 : 0.3} />
           ))}
@@ -156,10 +176,6 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
             model {fmt(p.yModel)} · {baseName === 'GBLUP' ? 'GBLUP' : 'GP'} {fmt(p.yBase)}
           </div>
         )}
-      </div>
-      <div className="mono" style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 6, opacity: 0.8 }}>
-        <span>→ {xLabel(t)}</span>
-        <span>↑ prediction (standardised)</span>
       </div>
     </div>
   );
