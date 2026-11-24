@@ -62,8 +62,6 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
   usePageShell(PAGE_BG);
   const titleRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const hintRef = useRef<HTMLDivElement>(null);
-  const skipRef = useRef<HTMLAnchorElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,8 +118,6 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 titleRef.current.style.opacity = String(Math.max(0, 1 - p / 0.3));
                 titleRef.current.style.transform = `translateY(${-p * 80}px)`;
               }
-              if (hintRef.current) hintRef.current.style.opacity = String(Math.max(0, 1 - p / 0.08));
-              if (skipRef.current) skipRef.current.style.opacity = p > 0.7 ? '0' : '0.75';
               if (endRef.current) {
                 const k = Math.max(0, Math.min(1, (p - 0.78) / 0.18));
                 endRef.current.style.opacity = String(k);
@@ -151,11 +147,6 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 Generating images of a plant's anatomy directly from its DNA.
               </p>
             </div>
-            <div ref={hintRef} style={{ position: 'absolute', right: '12%', bottom: '16%' }} aria-hidden>
-              <span className="scrawl" style={{ color: 'var(--fg)' }}>
-                scroll ↓
-              </span>
-            </div>
             <div
               ref={endRef}
               style={{
@@ -177,9 +168,6 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 training.
               </p>
             </div>
-            <a ref={skipRef} href="#d2d-why" className="skip" style={{ transition: 'opacity .3s' }}>
-              skip the animation ↓
-            </a>
           </ScrubCanvas>
         </section>
 
@@ -217,22 +205,22 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                     one number, planned ahead
                   </span>
                 </ComparisonRow>
-                <ComparisonRow label="DNA to Display">
+                <ComparisonRow label="DNA to Display" nowrap>
                   <img
                     src={`${ASSET}denoise/step_50.webp`}
                     alt="A root cross-section generated from the plant's DNA"
                     loading="lazy"
-                    style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
+                    style={{ width: THUMB, height: THUMB, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4, flexShrink: 0 }}
                   />
                   <Arrow />
-                  <figure style={{ margin: 0 }}>
+                  <figure style={{ margin: 0, flexShrink: 0, position: 'relative' }}>
                     <img
                       src={`${ASSET}pipeline/gen_root_measured.webp`}
                       alt="The same generated root, segmented: root, stele and 14 vessels outlined so they can be measured"
                       loading="lazy"
-                      style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
+                      style={{ width: THUMB, height: THUMB, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
                     />
-                    <figcaption className="scrawl ink" style={{ marginTop: 6 }}>
+                    <figcaption className="scrawl ink" style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, whiteSpace: 'nowrap' }}>
                       measure anything
                     </figcaption>
                   </figure>
@@ -364,18 +352,21 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
   );
 }
 
-function ComparisonRow({ label, children }: { label: string; children: React.ReactNode }) {
+// thumbnails shrink on phones so the DNA to Display row (3 images, 2 arrows) fits on one line
+const THUMB = 'clamp(64px, 19vw, 96px)';
+
+function ComparisonRow({ label, nowrap, children }: { label: string; nowrap?: boolean; children: React.ReactNode }) {
   return (
     <div>
       <div className="mono" style={{ fontWeight: 500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.08em' }}>
         {label}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 2vw, 12px)', flexWrap: nowrap ? 'nowrap' : 'wrap', marginBottom: nowrap ? 30 : 0 }}>
         <img
           src={`${ASSET}pipeline/genotype.png`}
           alt="The plant's genotype"
           loading="lazy"
-          style={{ width: 96, height: 74, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
+          style={{ width: THUMB, height: `calc(${THUMB} * 0.77)`, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4, flexShrink: 0, alignSelf: 'center' }}
         />
         <Arrow />
         {children}
@@ -386,38 +377,35 @@ function ComparisonRow({ label, children }: { label: string; children: React.Rea
 
 function Arrow() {
   return (
-    <svg width="40" height="18" viewBox="0 0 40 18" aria-hidden style={{ flexShrink: 0 }}>
+    <svg viewBox="0 0 40 18" aria-hidden style={{ flexShrink: 0, width: 'clamp(26px, 8vw, 40px)', height: 'auto', alignSelf: 'center' }}>
       <path d="M2 10 C 12 7, 22 12, 34 9" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" />
       <path d="M27 3 L 36 9 L 28 15" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-// Abstract shapes behind the cut-out root: a gold field, a blue counter-shape, a few arcs and dots.
-// They drift into place as the root forms (driven by --k from the scroll position).
+// Sharp gold shapes behind the cut-out root, to contrast with its round outline:
+// an uneven angular burst plus a few loose shards. They swing into place as the root
+// forms (driven by --k from the scroll position).
 const ColdBackdrop = forwardRef<HTMLDivElement>(function ColdBackdrop(_, ref) {
   return (
     <div ref={ref} className="cold-backdrop" aria-hidden>
       <svg viewBox="-20 -20 140 140" width="100%" height="100%">
-        <g className="cb-gold">
-          <path d="M34 6 C56 -4 86 8 92 32 C98 54 80 66 68 80 C56 94 26 94 14 74 C2 54 12 16 34 6Z" fill="#F1B82D" />
+        <g className="cb-burst">
+          <polygon
+            points="52,-16 63,17 100,2 82,36 120,50 84,66 104,104 64,86 46,120 36,86 -6,104 14,64 -20,44 18,32 0,-4 36,14"
+            fill="#F1B82D"
+          />
         </g>
-        <g className="cb-blue">
-          <path d="M74 58 C90 54 106 68 103 86 C100 102 82 108 68 100 C54 92 58 62 74 58Z" fill="#1F3F8F" />
-          <path d="M-6 18 C2 8 16 10 18 22 C20 34 8 40 0 36 C-8 32 -12 26 -6 18Z" fill="#4E7BE8" opacity="0.85" />
+        <g className="cb-shards" fill="#F1B82D">
+          <polygon points="104,-14 118,-4 100,6" />
+          <polygon points="-16,76 -4,92 -18,96" />
+          <polygon points="112,84 120,104 104,98" opacity="0.8" />
+          <polygon points="-12,-12 6,-16 -4,2" opacity="0.8" />
         </g>
-        <g className="cb-lines" fill="none" stroke="#F1E6CC" strokeLinecap="round">
-          <path d="M-8 70 A58 58 0 0 1 30 -6" strokeWidth="0.7" strokeDasharray="1.5 3" />
-          <path d="M108 30 A62 62 0 0 1 84 112" strokeWidth="0.8" />
-          <path d="M6 104 C30 116 56 112 70 104" strokeWidth="0.6" />
-        </g>
-        <g className="cb-dots" fill="#F1E6CC">
-          {Array.from({ length: 20 }, (_, i) => (
-            <circle key={i} cx={96 + (i % 5) * 4} cy={-6 + Math.floor(i / 5) * 4} r="0.8" />
-          ))}
-          {Array.from({ length: 12 }, (_, i) => (
-            <circle key={`b${i}`} cx={-14 + (i % 4) * 4} cy={92 + Math.floor(i / 4) * 4} r="0.8" fill="#F1B82D" />
-          ))}
+        <g className="cb-lines" fill="none" stroke="#F1B82D" strokeWidth="0.8" strokeLinejoin="miter">
+          <polygon points="88,112 118,118 100,92" />
+          <polyline points="-18,14 -8,4 -14,-6" />
         </g>
       </svg>
     </div>

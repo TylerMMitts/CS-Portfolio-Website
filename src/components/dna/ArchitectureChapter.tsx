@@ -14,25 +14,25 @@ const STAGES = [
     body: 'Turns the genome into 8 DNA tokens (chapter 02). It is trained together with the U-Net, so it learns which parts of the DNA matter for the picture.',
   },
   {
-    at: 0.18,
+    at: 0.2,
     focus: [150, 560],
     title: 'Denoising U-Net',
     body: 'Generation starts from random noise in the compressed code. Fifty times over, the U-Net predicts a cleaner code. Inside it, cross-attention lets every part of the picture look up the DNA tokens, so the genome steers every step.',
   },
   {
-    at: 0.5,
+    at: 0.42,
     focus: [470, 800],
     title: 'Image decoder',
     body: 'The decoder half of the autoencoder from chapter 03 turns the finished code back into a full root image.',
   },
   {
-    at: 0.67,
+    at: 0.61,
     focus: [760, 1040],
     title: 'Segmentation model',
     body: 'A separate model (YOLO) outlines the root, the stele and every vessel, so traits are measured on a generated image the same way as on a photograph.',
   },
   {
-    at: 0.86,
+    at: 0.82,
     focus: [0, 1040],
     title: 'Four models, one pipeline',
     body: 'DNA in, a measurable picture out. Only the first two ever see the DNA. In training, real roots are compressed, noise is added, and the U-Net learns to recover the clean code given the plant’s DNA.',
@@ -315,7 +315,7 @@ export function ArchitectureChapter() {
         </div>
       </div>
 
-      <div ref={trackRef} className="pin-track" style={{ height: reduced ? 'auto' : '520vh' }}>
+      <div ref={trackRef} className="pin-track" style={{ height: reduced ? 'auto' : '440vh' }}>
         <div className={reduced ? undefined : 'pin'}>
           <div className="arch-layout">
             <div className="arch-text" aria-live="polite">
