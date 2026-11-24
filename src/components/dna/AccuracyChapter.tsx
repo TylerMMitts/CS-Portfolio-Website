@@ -59,8 +59,8 @@ export function AnswerKeyChapter() {
               <span>average r over six traits</span>
             </div>
             <div className="stat">
-              <b>0.89 vs 0.51</b>
-              <span>a trait controlled by two interacting genes (model vs GBLUP, the standard genomic-prediction method)</span>
+              <b>14</b>
+              <span>root genes we designed, so every answer is known</span>
             </div>
             <div className="stat">
               <b>198</b>
@@ -69,16 +69,16 @@ export function AnswerKeyChapter() {
           </div>
 
           <div className="two-col" style={{ alignItems: 'start' }}>
-            <div>{traits.length > 0 && <Scatter traits={traits} baseName="GBLUP" idLabel="line" xLabel={(t) => `true genetic value${t.unit ? ` (${t.unit})` : ''}`} />}</div>
+            <div>{traits.length > 0 && <Scatter traits={traits} baseName="GBLUP" idLabel="line" xLabel={() => 'true genetic value (standardised)'} />}</div>
             <div>
               <h3>Be honest about it</h3>
               <p>
                 Each dot is one unseen line. Gold: measured on images the model generated. Grey: GBLUP, the standard
-                genomic-prediction method.
+                genomic-prediction method. The dashed line is a perfect prediction.
               </p>
               <p>
-                GBLUP is more accurate on five of the six traits. The model wins on metaxylem diameter, which is controlled by
-                two interacting genes: a straight-line method can't see that effect. And the model hands back a whole image,
+                GBLUP is more accurate on five of the six traits. The model wins on one, metaxylem diameter (r 0.89 vs 0.51),
+                which is controlled by two interacting genes: a straight-line method can't see that effect. And the model hands back a whole image,
                 not one number.
               </p>
             </div>
@@ -86,65 +86,64 @@ export function AnswerKeyChapter() {
         </div>
       </div>
 
-      {/* Gene dial, on a gold field */}
+      {/* Gene dial, on a gold field: the controls sit right under the image so both stay on screen */}
       <div className="ch field-gold">
-        <div className="wrap two-col">
-          <div>
+        <div className="wrap">
+          <div className="narrow">
             <span className="kicker">One gene, four versions</span>
             <h2>Turn the dial</h2>
             <p>
               One plant, on a line the model never saw, with one designed gene set to versions 1, 3, 6 and 8. The gold outline
               is the stele the segmentation model found.
             </p>
-            <div className="chips" role="radiogroup" aria-label="Gene version">
-              {DIAL.map((v, i) => (
-                <button
-                  key={v}
-                  role="radio"
-                  className="chip"
-                  aria-checked={dial === i}
-                  aria-pressed={dial === i}
-                  onClick={() => setDial(i)}
-                >
-                  gene = {v}
-                </button>
-              ))}
-            </div>
-            <label htmlFor="d2d-dial" className="visually-hidden">
-              Gene version
-            </label>
-            <input
-              id="d2d-dial"
-              type="range"
-              min={0}
-              max={3}
-              step={1}
-              value={dial}
-              onChange={(e) => setDial(Number(e.target.value))}
-              aria-valuetext={`gene version ${DIAL[dial]}`}
-            />
-            <p className="pull" style={{ marginTop: 24 }}>
-              “Change one gene → the stele grows 19%. It grew in 99% of 256 line × seed tests.”
-            </p>
           </div>
-          <div className="plate" style={{ overflow: 'visible', aspectRatio: '1', maxWidth: 520, width: '100%', justifySelf: 'center' }}>
-            {DIAL.map((v, i) => (
-              <img
-                key={v}
-                src={`${ASSET}gene_dial/code${v}_outlined.png`}
-                alt={i === dial ? `Generated root with the designed gene at version ${v}; the stele is outlined in gold` : ''}
-                aria-hidden={i !== dial}
-                loading="lazy"
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: i === dial ? 1 : 0, transition: 'opacity 0.45s' }}
+          <div className="two-col" style={{ alignItems: 'center', marginTop: 12 }}>
+            <figure style={{ margin: 0, width: '100%', maxWidth: 'min(520px, 58vh)', justifySelf: 'center' }}>
+              <div className="plate" style={{ aspectRatio: '1' }}>
+                {DIAL.map((v, i) => (
+                  <img
+                    key={v}
+                    src={`${ASSET}gene_dial/code${v}_outlined.png`}
+                    alt={i === dial ? `Generated root with the designed gene at version ${v}; the stele is outlined in gold` : ''}
+                    aria-hidden={i !== dial}
+                    loading="lazy"
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: i === dial ? 1 : 0, transition: 'opacity 0.45s' }}
+                  />
+                ))}
+                <span className="mono" style={{ position: 'absolute', left: 10, top: 10, background: 'var(--gold)', color: 'var(--ink)', padding: '2px 10px', borderRadius: 3, fontWeight: 500 }}>
+                  gene = {DIAL[dial]}
+                </span>
+              </div>
+              <div className="chips" role="radiogroup" aria-label="Gene version" style={{ marginTop: 12, marginBottom: 4, justifyContent: 'space-between', flexWrap: 'nowrap', gap: 6 }}>
+                {DIAL.map((v, i) => (
+                  <button key={v} role="radio" className="chip" aria-checked={dial === i} aria-pressed={dial === i} onClick={() => setDial(i)} style={{ flex: 1, paddingInline: 4 }}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <label htmlFor="d2d-dial" className="visually-hidden">
+                Gene version
+              </label>
+              <input
+                id="d2d-dial"
+                type="range"
+                min={0}
+                max={3}
+                step={1}
+                value={dial}
+                onChange={(e) => setDial(Number(e.target.value))}
+                aria-valuetext={`gene version ${DIAL[dial]}`}
               />
-            ))}
-            <span className="scrawl ink" style={{ position: 'absolute', right: 0, bottom: -34 }}>
-              gene = {DIAL[dial]}
-            </span>
+            </figure>
+            <div>
+              <p className="pull">“Change one gene → the stele grows 19%. It grew in 99% of 256 line × seed tests.”</p>
+              <p style={{ maxWidth: 440 }}>
+                Watch the gold outline widen as the version goes up.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-
     </section>
   );
 }

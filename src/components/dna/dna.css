@@ -1,7 +1,8 @@
 /* DNA to Display story page. Everything is scoped under .d2d so the
    portfolio's global pixel-art styles don't leak in (and ours don't leak out).
 
-   Look and feel come from a theme (data-theme on .d2d). Fixed colours:
+   Style: Lab type (Space Grotesk, Inter, JetBrains Mono), warm dark colours, a static film grain.
+   Fixed colours:
      --ink / --paper   dark and light, for text on the gold/blue fields and on images
      --gold / --blue   the Mizzou fields
    Theme colours:
@@ -16,11 +17,10 @@
   --blue-bright: #4E7BE8;
   --grey: #8C8A84;
 
-  /* default theme: Lab */
-  --bg: #0D0F12;
-  --bg-rgb: 13 15 18;
-  --fg: #E9E7E1;
-  --fg-rgb: 233 231 225;
+  --bg: #14120F;
+  --bg-rgb: 20 18 15;
+  --fg: #F1E6CC;
+  --fg-rgb: 241 230 204;
   --accent: #F1B82D;
   --f-poster: 'Space Grotesk', system-ui, sans-serif;
   --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -42,7 +42,7 @@
   --hand-track: 0.1em;
   --hand-style: normal;
   --tilt: 0;
-  --grain-op: 0.05;
+  --grain-op: 0.16;
   --grain-blend: overlay;
 
   position: relative;
@@ -56,87 +56,6 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Editorial: warm dark, magazine serif */
-.d2d[data-theme='editorial'] {
-  --bg: #14120F;
-  --bg-rgb: 20 18 15;
-  --fg: #F1E6CC;
-  --fg-rgb: 241 230 204;
-  --accent: #F1B82D;
-  --f-poster: 'Fraunces', Georgia, serif;
-  --f-body: 'Source Serif 4', Georgia, serif;
-  --f-serif: 'Fraunces', Georgia, serif;
-  --f-hand: 'Fraunces', Georgia, serif;
-  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  --head-weight: 600;
-  --head-track: -0.015em;
-  --head-lh: 1.02;
-  --h1: clamp(3.6rem, 15vw, 10rem);
-  --h2: clamp(2.3rem, 8vw, 4.8rem);
-  --pull-style: italic;
-  --pull-weight: 400;
-  --hand-size: 1.25rem;
-  --hand-case: none;
-  --hand-track: 0;
-  --hand-style: italic;
-  --grain-op: 0.08;
-}
-
-/* Paper: light, journal-like */
-.d2d[data-theme='paper'] {
-  --bg: #F4F0E6;
-  --bg-rgb: 244 240 230;
-  --fg: #17150F;
-  --fg-rgb: 23 21 15;
-  --accent: #8F6300;
-  --f-poster: 'Bricolage Grotesque', system-ui, sans-serif;
-  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --f-serif: 'Newsreader', Georgia, serif;
-  --f-hand: 'Newsreader', Georgia, serif;
-  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  --head-weight: 700;
-  --head-track: -0.035em;
-  --head-lh: 0.96;
-  --pull-style: italic;
-  --pull-weight: 400;
-  --hand-size: 1.3rem;
-  --hand-case: none;
-  --hand-track: 0;
-  --hand-style: italic;
-  --grain-op: 0.07;
-  --grain-blend: multiply;
-}
-
-/* Poster: the first version (condensed poster type, hand notes, roughened edges) */
-.d2d[data-theme='poster'] {
-  --bg: #0E0D0B;
-  --bg-rgb: 14 13 11;
-  --fg: #F1E6CC;
-  --fg-rgb: 241 230 204;
-  --accent: #F1B82D;
-  --f-poster: 'Anton', 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
-  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --f-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --f-hand: 'Caveat', 'Reenie Beanie', 'Comic Sans MS', cursive;
-  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  --head-case: uppercase;
-  --head-weight: 400;
-  --head-track: 0.01em;
-  --head-lh: 0.92;
-  --head-filter: url(#d2d-rough);
-  --h1: clamp(4.2rem, 17vw, 13rem);
-  --h2: clamp(2.8rem, 10vw, 6.5rem);
-  --h3: clamp(1.6rem, 5vw, 2.4rem);
-  --pull-style: italic;
-  --pull-weight: 400;
-  --hand-size: clamp(1.5rem, 4.5vw, 2.1rem);
-  --hand-case: none;
-  --hand-track: 0;
-  --hand-style: normal;
-  --tilt: 1;
-  --grain-op: 0.16;
-}
-
 /* the gold and blue fields keep their own colours in every theme */
 .d2d .field-gold { --fg: var(--ink); --fg-rgb: 14 13 11; --accent: var(--ink); background-color: var(--gold); color: var(--ink); }
 .d2d .field-blue { --fg: var(--paper); --fg-rgb: 241 230 204; --accent: var(--gold); background-color: var(--blue); color: var(--paper); }
@@ -145,7 +64,6 @@
 .d2d, .d2d * { cursor: auto; }
 .d2d a, .d2d button, .d2d [role='button'], .d2d input[type='range'] { cursor: pointer !important; }
 .d2d p, .d2d li { font-family: var(--f-body); font-size: 17px; line-height: 1.6; margin: 0 0 1em; color: inherit; }
-.d2d[data-theme='editorial'] p, .d2d[data-theme='editorial'] li { font-size: 18.5px; }
 .d2d h1, .d2d h2, .d2d h3, .d2d h4, .d2d .poster-font {
   font-family: var(--f-poster);
   font-weight: var(--head-weight);
@@ -221,18 +139,7 @@
 .d2d .ch { position: relative; padding: 16vh 20px; }
 .d2d .wrap { max-width: 1120px; margin: 0 auto; position: relative; }
 .d2d .narrow { max-width: 720px; }
-/* uneven ink on the fields: the blotch texture as a faint layer (poster theme only) */
 .d2d .field-gold, .d2d .field-blue { position: relative; isolation: isolate; }
-.d2d[data-theme='poster'] .field-gold::before, .d2d[data-theme='poster'] .field-blue::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url('/d2d/texture/paper_blotch_1024.png') 0 0 / 1024px;
-}
-.d2d[data-theme='poster'] .field-gold::before { mix-blend-mode: multiply; opacity: 0.14; }
-.d2d[data-theme='poster'] .field-blue::before { mix-blend-mode: screen; opacity: 0.08; }
 .d2d .two-col { display: grid; gap: 40px; align-items: center; }
 @media (min-width: 860px) { .d2d .two-col { grid-template-columns: 1fr 1fr; gap: 64px; } }
 
@@ -271,7 +178,6 @@
   min-height: 44px;
   transition: background 0.15s, color 0.15s;
 }
-.d2d[data-theme='poster'] .stamp { border-width: 2px; border-radius: 3px 6px 4px 7px; font-size: 16px; }
 .d2d .stamp:hover { background: var(--fg); color: var(--bg); }
 .d2d .stamp.gold { color: var(--accent); }
 .d2d .stamp.gold:hover { background: var(--accent); color: var(--bg); }
@@ -286,7 +192,6 @@
   color: var(--fg);
   opacity: 0.85;
 }
-.d2d[data-theme='poster'] .chip { border-radius: 2px; font-size: 16px; }
 .d2d .chip[aria-pressed='true'], .d2d .chip[aria-selected='true'] { background: var(--gold); color: var(--ink); border-color: var(--gold); opacity: 1; }
 .d2d .field-gold .chip { border-color: rgb(14 13 11 / 0.45); }
 .d2d .field-gold .chip[aria-pressed='true'] { background: var(--ink); color: var(--gold); border-color: var(--ink); }
@@ -340,7 +245,6 @@
   padding: 18px 20px 16px;
   transform: rotate(calc(var(--tilt) * -0.6deg));
 }
-.d2d[data-theme='poster'] .stat { border: 2px solid var(--gold); }
 .d2d .stat:nth-child(2) { transform: rotate(calc(var(--tilt) * 0.5deg)); }
 .d2d .stat b {
   display: block; font-family: var(--f-poster); font-weight: var(--head-weight); letter-spacing: var(--head-track);
@@ -361,7 +265,6 @@
 
 /* dark frame for scientific images, the same in every theme */
 .d2d .plate { position: relative; background: #000; border-radius: 4px; overflow: hidden; }
-.d2d[data-theme='poster'] .plate { border-radius: 0; }
 
 .d2d .tooltip {
   position: absolute;
@@ -387,7 +290,6 @@
 .d2d .tile-inner { position: absolute; inset: 0; transition: transform 0.7s cubic-bezier(.3, 1.4, .5, 1); transform-style: preserve-3d; }
 .d2d .tile.flipped .tile-inner { transform: rotateY(180deg); }
 .d2d .tile-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; border-radius: 4px; }
-.d2d[data-theme='poster'] .tile-face { border-radius: 0; }
 .d2d .tile-face img { width: 100%; height: 100%; object-fit: cover; }
 .d2d .tile-back { transform: rotateY(180deg); }
 .d2d .tile .pick {
@@ -418,18 +320,6 @@
 .d2d .gene-item b { display: block; font-size: 15px; line-height: 1.2; font-weight: 600; }
 .d2d .gene-item span { display: block; font-size: 13px; line-height: 1.3; opacity: 0.7; }
 
-/* style picker for the preview */
-.d2d .style-picker {
-  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 70;
-  display: flex; gap: 2px; padding: 4px; border-radius: 999px;
-  background: rgb(14 13 11 / 0.88); backdrop-filter: blur(8px); border: 1px solid rgb(241 230 204 / 0.25);
-  box-shadow: 0 6px 24px rgb(0 0 0 / 0.3);
-}
-.d2d .style-picker button {
-  font-family: system-ui, -apple-system, sans-serif; font-size: 13px; color: #F1E6CC; padding: 8px 11px; border-radius: 999px; min-height: 36px;
-}
-.d2d .style-picker button[aria-pressed='true'] { background: #F1B82D; color: #0E0D0B; font-weight: 600; }
-
 /* denoising slider: 4 latent channels in a row, then the decoded image */
 .d2d .denoise-views { display: grid; gap: 14px; align-items: center; }
 .d2d .denoise-views > figure:last-child { width: min(100%, 420px); justify-self: center; }
@@ -440,4 +330,21 @@
   .d2d .denoise-views > figure:last-child { width: 100%; }
   .d2d .denoise-arrow .arr-right { display: inline; }
   .d2d .denoise-arrow .arr-down { display: none; }
+}
+
+/* cold open: a gold disc behind the cut-out root */
+.d2d .cold-backdrop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(min(92vw, 56vh) * 1.3);
+  aspect-ratio: 1;
+  transform: translate(-50%, calc(-50% - 8vh));
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, var(--gold) 0 70%, rgb(241 184 45 / 0.45) 86%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (orientation: landscape), (min-aspect-ratio: 10/13) {
+  .d2d .cold-backdrop { width: calc(66vmin * 1.3); }
 }

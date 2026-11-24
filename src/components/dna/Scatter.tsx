@@ -17,7 +17,7 @@ interface Props {
 }
 
 const W = 400;
-const H = 320;
+const H = 360;
 const M = { l: 14, r: 12, t: 12, b: 14 };
 
 const fmt = (v: number) => v.toFixed(2);
@@ -30,16 +30,21 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const t = traits[ti];
 
+  // Predictions are standardised, so the true values are standardised too and both axes share
+  // one range: a perfect prediction sits on the diagonal.
   const scales = useMemo(() => {
     const xs = t.points.map((p) => p.x);
-    const ys = t.points.flatMap((p) => [p.yModel, p.yBase]);
-    const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
-    const [y0, y1] = [Math.min(...ys), Math.max(...ys)];
-    const px = (x1 - x0) * 0.04 || 1;
-    const py = (y1 - y0) * 0.04 || 1;
-    const sx = (v: number) => M.l + ((v - (x0 - px)) / (x1 - x0 + 2 * px)) * (W - M.l - M.r);
-    const sy = (v: number) => H - M.b - ((v - (y0 - py)) / (y1 - y0 + 2 * py)) * (H - M.t - M.b);
-    return { sx, sy };
+    const mean = xs.reduce((a, b) => a + b, 0) / xs.length;
+    const sd = Math.sqrt(xs.reduce((a, b) => a + (b - mean) ** 2, 0) / xs.length) || 1;
+    const zx = (v: number) => (v - mean) / sd;
+    const all = [...xs.map(zx), ...t.points.flatMap((p) => [p.yModel, p.yBase])];
+    const [lo0, hi0] = [Math.min(...all), Math.max(...all)];
+    const pad = (hi0 - lo0) * 0.04 || 1;
+    const [lo, hi] = [lo0 - pad, hi0 + pad];
+    const fx = (z: number) => M.l + ((z - lo) / (hi - lo)) * (W - M.l - M.r);
+    const sy = (v: number) => H - M.b - ((v - lo) / (hi - lo)) * (H - M.t - M.b);
+    const sx = (v: number) => fx(zx(v));
+    return { sx, sy, diag: [fx(lo), sy(lo), fx(hi), sy(hi)] };
   }, [t]);
 
   const pick = (e: PointerEvent<SVGSVGElement>) => {
@@ -117,6 +122,10 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
           onKeyDown={onKey}
           style={{ width: '100%', height: 'auto', display: 'block', background: 'rgb(var(--fg-rgb) / .04)', border: '1.5px solid rgb(var(--fg-rgb) / .25)', borderRadius: 4, color: 'var(--fg)', touchAction: 'pan-y' }}
         >
+          <line x1={scales.diag[0]} y1={scales.diag[1]} x2={scales.diag[2]} y2={scales.diag[3]} stroke="currentColor" strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 5" />
+          <text x={W - M.r - 4} y={M.t + 14} textAnchor="end" fill="currentColor" opacity="0.6" style={{ font: '12px var(--f-mono)' }}>
+            perfect prediction ↗
+          </text>
           {t.points.map((pt, i) => (
             <rect key={`b${i}`} x={scales.sx(pt.x) - 2.2} y={scales.sy(pt.yBase) - 2.2} width="4.4" height="4.4" fill="#8C8A84" opacity={sel === null || sel === i ? 0.75 : 0.3} />
           ))}
@@ -149,7 +158,7 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
         )}
       </div>
       <div className="mono" style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 6, opacity: 0.8 }}>
-        <span>← {xLabel(t)} →</span>
+        <span>→ {xLabel(t)}</span>
         <span>↑ prediction (standardised)</span>
       </div>
     </div>

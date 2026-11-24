@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import './dna.css';
 import { ASSET, frameUrls } from './hooks';
 import { ScrubCanvas } from './ScrubCanvas';
@@ -16,46 +16,8 @@ import { MusicToggle } from './MusicToggle';
 const MUSIC_CREDIT = '';
 
 const FONTS =
-  'https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@500' +
-  '&family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,400..500&family=IBM+Plex+Mono:wght@400;500' +
-  '&family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500' +
-  '&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400' +
-  '&family=Space+Grotesk:wght@500;600;700&display=swap';
-
-// Style options for the preview. Pick one, then hard-code it and drop the picker.
-const THEMES = [
-  { key: 'lab', label: 'Lab', bg: '#0D0F12' },
-  { key: 'editorial', label: 'Editorial', bg: '#14120F' },
-  { key: 'paper', label: 'Paper', bg: '#F4F0E6' },
-  { key: 'poster', label: 'Poster', bg: '#0E0D0B' },
-] as const;
-type ThemeKey = (typeof THEMES)[number]['key'];
-
-function useTheme(): [ThemeKey, (t: ThemeKey) => void] {
-  const [theme, setTheme] = useState<ThemeKey>(() => {
-    const q = new URLSearchParams(window.location.search).get('style');
-    let saved: string | null = null;
-    try {
-      saved = localStorage.getItem('d2d-style');
-    } catch {
-      /* storage blocked */
-    }
-    const pick = q ?? saved;
-    return THEMES.some((t) => t.key === pick) ? (pick as ThemeKey) : 'lab';
-  });
-  const set = (t: ThemeKey) => {
-    setTheme(t);
-    try {
-      localStorage.setItem('d2d-style', t);
-    } catch {
-      /* storage blocked */
-    }
-    const u = new URL(window.location.href);
-    u.searchParams.set('style', t);
-    window.history.replaceState(window.history.state, '', u);
-  };
-  return [theme, set];
-}
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap';
+const PAGE_BG = '#14120F';
 
 const DENOISE = frameUrls('denoise');
 
@@ -96,19 +58,19 @@ function usePageShell(bg: string) {
 
 export function DnaStory({ onBack }: { onBack: () => void }) {
   useFonts();
-  const [theme, setTheme] = useTheme();
-  usePageShell(THEMES.find((t) => t.key === theme)!.bg);
+  usePageShell(PAGE_BG);
   const titleRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLAnchorElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
-    <div className="d2d" data-theme={theme}>
+    <div className="d2d">
       {/* shared filters: a light roughen for poster headings */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden focusable="false">
         <filter id="d2d-rough" x="-2%" y="-5%" width="104%" height="110%">
@@ -117,13 +79,6 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
         </filter>
       </svg>
       <div className="d2d-grain" aria-hidden />
-      <div className="style-picker" role="group" aria-label="Page style (preview)">
-        {THEMES.map((t) => (
-          <button key={t.key} aria-pressed={theme === t.key} onClick={() => setTheme(t.key)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
 
       <div className="topbar">
         <a
@@ -151,7 +106,13 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
             endFraction={0.66}
             endOffset={-0.08}
             label="Random noise gradually denoising into a maize root cross-section generated from DNA"
+            backdrop={<div ref={backdropRef} className="cold-backdrop" aria-hidden />}
             onProgress={(p) => {
+              // the gold disc comes up while the root's background is cut away (steps 33 to 44)
+              if (backdropRef.current) {
+                const k = Math.max(0, Math.min(1, (p - 0.45) / 0.24));
+                backdropRef.current.style.opacity = String(k * k * (3 - 2 * k));
+              }
               if (titleRef.current) {
                 titleRef.current.style.opacity = String(Math.max(0, 1 - p / 0.3));
                 titleRef.current.style.transform = `translateY(${-p * 80}px)`;
