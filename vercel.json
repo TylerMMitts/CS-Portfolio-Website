@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/((?!assets|root_pattern).*)", "destination": "/index.html" }
+    { "source": "/((?!assets|root_pattern|d2d).*)", "destination": "/index.html" }
   ]
 }

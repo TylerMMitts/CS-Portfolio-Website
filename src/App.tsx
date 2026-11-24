@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import { PillNavigation } from './components/PillNavigation';
 import { HeroSection } from './components/HeroSection';
@@ -11,7 +11,14 @@ import { AllProjectsPage } from './components/AllProjectsPage';
 import { ScrollBinaryTree } from './components/ScrollBinaryTree';
 import { projects, getProjectBySlug } from './data/projects';
 
-type View = 'portfolio' | 'projects' | 'project';
+// The DNA to Display story is large and only needed on its own page
+const DnaStory = lazy(() => import('./components/dna/DnaStory').then((m) => ({ default: m.DnaStory })));
+
+type View = 'portfolio' | 'projects' | 'project' | 'story';
+
+// Unlisted preview of the new DNA to Display scroll story, for testing before it replaces
+// /dna-to-display (the poster QR code's URL). To go live, route the dna-to-display slug here.
+const STORY_PREVIEW_SLUG = 'dna-story-preview';
 const DEFAULT_TITLE = 'Tyler Mitts Portfolio';
 
 // Map a URL path to a view: "/" -> portfolio, "/projects" -> all projects,
@@ -20,6 +27,7 @@ function routeFromPath(pathname: string): { view: View; projectId: number | null
   const slug = pathname.replace(/^\/+|\/+$/g, '');
   if (slug === '') return { view: 'portfolio', projectId: null };
   if (slug.toLowerCase() === 'projects') return { view: 'projects', projectId: null };
+  if (slug.toLowerCase() === STORY_PREVIEW_SLUG) return { view: 'story', projectId: null };
   const project = getProjectBySlug(slug);
   if (project) return { view: 'project', projectId: project.id };
   return { view: 'portfolio', projectId: null };
@@ -28,7 +36,8 @@ function routeFromPath(pathname: string): { view: View; projectId: number | null
 export default function App() {
   const initialRoute = routeFromPath(window.location.pathname);
   const [activeSection, setActiveSection] = useState('home');
-  const [isLoaded, setIsLoaded] = useState(false);
+  // The DNA story page doesn't use the pixel font, so skip the loading screen
+  const [isLoaded, setIsLoaded] = useState(initialRoute.view === 'story');
   const [currentView, setCurrentView] = useState<View>(initialRoute.view);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialRoute.projectId);
 
@@ -63,6 +72,7 @@ export default function App() {
     document.title =
       currentView === 'project' && project ? `${project.title} | Tyler Mitts`
       : currentView === 'projects' ? 'Projects | Tyler Mitts'
+      : currentView === 'story' ? 'DNA to Display | Tyler Mitts'
       : DEFAULT_TITLE;
   }, [currentView, selectedProjectId]);
 
@@ -160,6 +170,14 @@ export default function App() {
   }
 
   // Show project detail view
+  if (currentView === 'story') {
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0E0D0B' }} />}>
+        <DnaStory onBack={handleBackFromAllProjects} />
+      </Suspense>
+    );
+  }
+
   if (currentView === 'project' && selectedProject) {
     return (
       <ProjectDetail 

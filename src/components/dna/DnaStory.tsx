@@ -1,0 +1,372 @@
+import { useEffect, useRef } from 'react';
+import './dna.css';
+import { ASSET, frameUrls } from './hooks';
+import { ScrubCanvas } from './ScrubCanvas';
+import { Ripple } from './Ripple';
+import { EncoderChapter } from './EncoderChapter';
+import { DenoiseSlider } from './DenoiseSlider';
+import { ContributionMap } from './ContributionMap';
+import { AccuracyChapter } from './AccuracyChapter';
+import { MouseChapter } from './MouseChapter';
+import { WhichIsReal } from './WhichIsReal';
+import { MusicToggle } from './MusicToggle';
+
+// Credit line for the background track, shown in the footer once a track is added.
+// Fill in when a licensed track (CC0 / royalty-free / CC-BY) has been chosen.
+const MUSIC_CREDIT = '';
+
+const FONTS =
+  'https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap';
+
+const DENOISE = frameUrls('denoise');
+
+function useFonts() {
+  useEffect(() => {
+    if (document.getElementById('d2d-fonts')) return;
+    const pre = document.createElement('link');
+    pre.rel = 'preconnect';
+    pre.href = 'https://fonts.gstatic.com';
+    pre.crossOrigin = '';
+    const link = document.createElement('link');
+    link.id = 'd2d-fonts';
+    link.rel = 'stylesheet';
+    link.href = FONTS;
+    document.head.append(pre, link);
+  }, []);
+}
+
+// The page lives outside the portfolio's theme while mounted:
+// - paint the overscroll area ink
+// - the portfolio's global CSS pins html/body to 100% height with their own scrollbars,
+//   which makes <body> the scroller; switch back to normal window scrolling so the
+//   scroll-driven scenes, sticky pins and iOS Safari's toolbar behave.
+function usePageShell() {
+  useEffect(() => {
+    const els = [document.documentElement, document.body];
+    const saved = els.map((el) => el.getAttribute('style'));
+    els.forEach((el) => {
+      el.style.background = '#0E0D0B';
+      el.style.height = 'auto';
+      el.style.overflow = 'visible';
+    });
+    return () => {
+      els.forEach((el, i) => (saved[i] === null ? el.removeAttribute('style') : el.setAttribute('style', saved[i]!)));
+    };
+  }, []);
+}
+
+export function DnaStory({ onBack }: { onBack: () => void }) {
+  useFonts();
+  usePageShell();
+  const titleRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLDivElement>(null);
+  const skipRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="d2d">
+      {/* shared filters: a light roughen for poster headings */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden focusable="false">
+        <filter id="d2d-rough" x="-2%" y="-5%" width="104%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+      <div className="d2d-grain" aria-hidden />
+
+      <div className="topbar">
+        <a
+          href="/"
+          className="stamp"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+        >
+          ← Portfolio
+        </a>
+        <MusicToggle />
+      </div>
+
+      <main>
+        {/* 0 · Cold open */}
+        <section aria-labelledby="d2d-title" style={{ position: 'relative' }}>
+          <ScrubCanvas
+            frames={DENOISE}
+            load
+            heightVh={320}
+            startCover
+            glow
+            endFraction={0.66}
+            endOffset={-0.08}
+            label="Random noise gradually denoising into a maize root cross-section generated from DNA"
+            onProgress={(p) => {
+              if (titleRef.current) {
+                titleRef.current.style.opacity = String(Math.max(0, 1 - p / 0.3));
+                titleRef.current.style.transform = `translateY(${-p * 80}px)`;
+              }
+              if (hintRef.current) hintRef.current.style.opacity = String(Math.max(0, 1 - p / 0.08));
+              if (skipRef.current) skipRef.current.style.opacity = p > 0.7 ? '0' : '0.75';
+              if (endRef.current) {
+                const k = Math.max(0, Math.min(1, (p - 0.78) / 0.18));
+                endRef.current.style.opacity = String(k);
+                endRef.current.style.transform = `translateY(${(1 - k) * 24}px)`;
+              }
+            }}
+          >
+            <div
+              ref={titleRef}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                padding: '0 18px',
+                textAlign: 'center',
+                background: 'radial-gradient(ellipse at center, rgba(14,13,11,.45), transparent 70%)',
+              }}
+            >
+              <h1 id="d2d-title" style={{ margin: 0, textShadow: '0 4px 30px rgba(14,13,11,.6)' }}>
+                DNA to
+                <br />
+                Display
+              </h1>
+              <p className="serif" style={{ fontSize: 'clamp(1.3rem, 4.5vw, 2rem)', fontStyle: 'italic', margin: '14px auto 0', maxWidth: '26ch', textShadow: '0 2px 18px #000' }}>
+                Generating images of a plant's anatomy directly from its DNA.
+              </p>
+            </div>
+            <div ref={hintRef} style={{ position: 'absolute', right: '12%', bottom: '16%' }} aria-hidden>
+              <span className="scrawl paper" style={{ fontSize: '2.2rem' }}>
+                scroll ↓
+              </span>
+            </div>
+            <div
+              ref={endRef}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                padding: '48px 18px max(28px, 5vh)',
+                textAlign: 'center',
+                opacity: 0,
+                background: 'linear-gradient(transparent, rgba(14,13,11,.88) 38%)',
+              }}
+            >
+              <p style={{ fontFamily: 'var(--f-poster)', textTransform: 'uppercase', fontSize: 'clamp(1.7rem, 6vw, 3.2rem)', lineHeight: 1, margin: '0 0 10px', filter: 'url(#d2d-rough)', textShadow: '0 2px 20px #000' }}>
+                This root was never photographed.
+              </p>
+              <p className="serif" style={{ fontSize: 'clamp(1.15rem, 3.6vw, 1.5rem)', fontStyle: 'italic', margin: '0 auto', maxWidth: '40ch', lineHeight: 1.3, textShadow: '0 2px 14px #000' }}>
+                A maize root cross-section, drawn by an AI from nothing but the plant's DNA. The model never saw this plant during
+                training.
+              </p>
+            </div>
+            <a ref={skipRef} href="#d2d-why" className="skip" style={{ transition: 'opacity .3s' }}>
+              skip the animation ↓
+            </a>
+          </ScrubCanvas>
+        </section>
+
+        {/* 1 · Why it matters */}
+        <Ripple className="ch field-gold" id="d2d-why" ariaLabelledby="d2d-why-h">
+          <div className="wrap">
+            <span className="kicker">01 · Why it matters</span>
+            <h2 id="d2d-why-h">
+              An image, <span className="underline-stroke">not just a number</span>
+            </h2>
+            <div className="two-col" style={{ alignItems: 'start' }}>
+              <div>
+                <p>
+                  Breeders predict traits from DNA every day. But genomic prediction gives back one number per trait, and only
+                  for traits you decided to measure in advance.
+                </p>
+                <p>
+                  <b>The idea:</b> predict the whole image instead. Then any trait can be measured on it later, including traits
+                  nobody planned for.
+                </p>
+                <p>
+                  <b>Why roots:</b> root anatomy (vessels, cortex, air channels) shapes how a plant handles drought and
+                  nutrients, and imaging it means cutting and photographing thousands of roots by hand.
+                </p>
+              </div>
+              <div style={{ display: 'grid', gap: 30 }}>
+                <ComparisonRow label="Genomic prediction">
+                  <div
+                    className="mono"
+                    style={{ border: '2px solid var(--ink)', padding: '14px 16px', fontSize: 18, fontWeight: 500, transform: 'rotate(-1deg)', whiteSpace: 'nowrap' }}
+                  >
+                    stele = 0.95 mm
+                  </div>
+                  <span className="scrawl ink" style={{ fontSize: '1.5rem' }}>
+                    one number, planned ahead
+                  </span>
+                </ComparisonRow>
+                <ComparisonRow label="DNA to Display">
+                  <img
+                    src={`${ASSET}pipeline/gen_root.png`}
+                    alt="A root cross-section generated from the plant's DNA"
+                    loading="lazy"
+                    style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink), 0 0 28px rgba(14,13,11,.35)' }}
+                  />
+                  <Arrow />
+                  <span className="scrawl ink" style={{ fontSize: '1.6rem' }}>
+                    measure anything
+                  </span>
+                </ComparisonRow>
+              </div>
+            </div>
+          </div>
+        </Ripple>
+
+        {/* 2 · Reading the genome */}
+        <EncoderChapter />
+
+        {/* 3 · Learning to see */}
+        <Ripple className="ch field-blue" id="d2d-see" ariaLabelledby="d2d-see-h">
+          <div className="wrap">
+            <span className="kicker">03 · Learning to see</span>
+            <h2 id="d2d-see-h">Squeeze the picture first</h2>
+            <p style={{ maxWidth: 620 }}>
+              Before it generates anything, the model learns a compressed code for root images, 48× smaller than the image
+              itself. Generating in that code is fast enough to run on a laptop.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 'clamp(16px, 4vw, 40px)', marginTop: 36, alignItems: 'start' }}>
+              {[
+                { src: 'real_root.png', cap: 'real image', note: '3 × 256 × 256', rot: -2 },
+                { src: 'wavelets.png', cap: 'wavelet bands', note: 'fixed transform', rot: 1.5 },
+                { src: 'latent.png', cap: 'compressed code', note: '4 × 32 × 32 · 48× smaller', rot: -1, pix: true },
+                { src: 'recon_root.png', cap: 'rebuilt image', note: 'decoded back', rot: 2 },
+              ].map((s, i, arr) => (
+                <figure key={s.src} style={{ margin: 0, transform: `rotate(${s.rot}deg)`, position: 'relative' }}>
+                  <div className="torn print halftone" style={{ background: 'var(--paper)', padding: 8 }}>
+                    <img src={`${ASSET}pipeline/${s.src}`} alt={s.cap} loading="lazy" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', imageRendering: s.pix ? 'pixelated' : 'auto' }} />
+                  </div>
+                  <figcaption style={{ marginTop: 10 }}>
+                    <span style={{ fontFamily: 'var(--f-poster)', textTransform: 'uppercase', fontSize: 20 }}>{s.cap}</span>
+                    <br />
+                    <span className="mono" style={{ opacity: 0.8 }}>
+                      {s.note}
+                    </span>
+                  </figcaption>
+                  {i < arr.length - 1 && (
+                    <span className="scrawl" aria-hidden style={{ position: 'absolute', right: -24, top: '38%', fontSize: '2.4rem', opacity: 0.9 }}>
+                      →
+                    </span>
+                  )}
+                </figure>
+              ))}
+            </div>
+            <span className="scrawl" style={{ marginTop: 34 }}>
+              encoder squeezes it, decoder rebuilds it
+            </span>
+          </div>
+        </Ripple>
+
+        {/* 4 · Denoising slider */}
+        <DenoiseSlider />
+
+        {/* 5 · Contribution map */}
+        <ContributionMap />
+
+        {/* 6 · Known-answer test */}
+        <AccuracyChapter />
+
+        {/* 7 · Mouse */}
+        <Ripple>
+          <MouseChapter />
+        </Ripple>
+
+        {/* 8 · Game */}
+        <Ripple>
+          <WhichIsReal />
+        </Ripple>
+
+        {/* 9 · Close */}
+        <section className="ch field-gold" aria-labelledby="d2d-close-h">
+          <div className="wrap narrow">
+            <span className="kicker">09 · That's the story</span>
+            <h2 id="d2d-close-h" className="visually-hidden">
+              Summary and credits
+            </h2>
+            <p className="pull" style={{ fontSize: 'clamp(1.8rem, 5.5vw, 3rem)', maxWidth: '22ch' }}>
+              “From DNA to an image you can measure, for traits you haven't thought of yet, in a plant root or a mouse.”
+            </p>
+            <div style={{ marginTop: 40 }}>
+              <p style={{ fontSize: 20, marginBottom: 6 }}>
+                <b>Tyler Mitts</b>¹ · Jagdeep Sidhu¹ · Erik Amezquita¹ · Mo Akbar²
+              </p>
+              <p className="mono" style={{ margin: 0 }}>¹University of Missouri, Columbia, MO</p>
+              <p className="mono">²Levity Turtle LLC</p>
+              <p style={{ marginTop: 20 }}>
+                <b>Acknowledgments:</b> Ruairidh Sawers (Penn State), Sergio Perez-Limon (Penn State / NC State), Alejandra Rougon
+                (UNAM)
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 28 }}>
+              <a className="stamp" href={`${ASSET}reference/poster.png`} target="_blank" rel="noopener noreferrer">
+                See the poster ↗
+              </a>
+              <a className="stamp" href="mailto:tmitts0206@gmail.com">
+                Email Tyler
+              </a>
+              <a className="stamp" href="https://www.linkedin.com/in/tyler-mitts-a67658375/" target="_blank" rel="noopener noreferrer">
+                LinkedIn ↗
+              </a>
+              <a
+                className="stamp"
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onBack();
+                }}
+              >
+                More of my work
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer style={{ padding: '28px 20px 40px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <img src={`${ASSET}brand/mu_mark_reversed.png`} alt="University of Missouri" loading="lazy" style={{ height: 52, width: 'auto' }} />
+        <span className="mono" style={{ opacity: 0.6 }}>
+          tylermitts.com/dna-to-display{MUSIC_CREDIT ? ` · music: ${MUSIC_CREDIT}` : ''}
+        </span>
+      </footer>
+    </div>
+  );
+}
+
+function ComparisonRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mono" style={{ fontWeight: 500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.08em' }}>
+        {label}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <img
+          src={`${ASSET}pipeline/genotype.png`}
+          alt="The plant's genotype"
+          loading="lazy"
+          style={{ width: 96, height: 74, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)' }}
+        />
+        <Arrow />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg width="40" height="18" viewBox="0 0 40 18" aria-hidden style={{ flexShrink: 0 }}>
+      <path d="M2 10 C 12 7, 22 12, 34 9" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <path d="M27 3 L 36 9 L 28 15" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

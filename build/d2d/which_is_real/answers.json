@@ -1,0 +1,38 @@
+{
+ "1": {
+  "genotype": "MEMA233",
+  "kind": "generated"
+ },
+ "2": {
+  "genotype": "MEMA310",
+  "kind": "real"
+ },
+ "3": {
+  "genotype": "MEMA105",
+  "kind": "real"
+ },
+ "4": {
+  "genotype": "MEMA233",
+  "kind": "real"
+ },
+ "5": {
+  "genotype": "MEMA042",
+  "kind": "generated"
+ },
+ "6": {
+  "genotype": "MEMA310",
+  "kind": "generated"
+ },
+ "7": {
+  "genotype": "MEMA042",
+  "kind": "generated"
+ },
+ "8": {
+  "genotype": "MEMA296",
+  "kind": "real"
+ },
+ "9": {
+  "genotype": "MEMA105",
+  "kind": "generated"
+ }
+}
