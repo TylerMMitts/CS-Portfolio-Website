@@ -92,11 +92,11 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
       <div className="mono" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px', marginBottom: 8 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <svg width="16" height="16" aria-hidden>
-            <circle cx="8" cy="8" r="6" fill="#F1B82D" stroke="#0E0D0B" strokeWidth="1.5" />
+            <circle cx="8" cy="8" r="6" fill="#F1B82D" stroke="#0E0D0B" strokeWidth="1" />
           </svg>
           model r = {fmt(t.rModel)}
         </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#C9C6BE' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, opacity: 0.8 }}>
           <svg width="16" height="16" aria-hidden>
             <rect x="4" y="4" width="8" height="8" fill="#8C8A84" />
           </svg>
@@ -115,7 +115,7 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
           onPointerDown={pick}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setSel(null)}
           onKeyDown={onKey}
-          style={{ width: '100%', height: 'auto', display: 'block', background: 'rgba(241,230,204,.04)', border: '1.5px solid rgba(241,230,204,.25)', touchAction: 'pan-y' }}
+          style={{ width: '100%', height: 'auto', display: 'block', background: 'rgb(var(--fg-rgb) / .04)', border: '1.5px solid rgb(var(--fg-rgb) / .25)', borderRadius: 4, color: 'var(--fg)', touchAction: 'pan-y' }}
         >
           {t.points.map((pt, i) => (
             <rect key={`b${i}`} x={scales.sx(pt.x) - 2.2} y={scales.sy(pt.yBase) - 2.2} width="4.4" height="4.4" fill="#8C8A84" opacity={sel === null || sel === i ? 0.75 : 0.3} />
@@ -125,9 +125,9 @@ export function Scatter({ traits, baseName, xLabel, idLabel }: Props) {
           ))}
           {p && (
             <g pointerEvents="none">
-              <line x1={scales.sx(p.x)} x2={scales.sx(p.x)} y1={scales.sy(p.yModel)} y2={scales.sy(p.yBase)} stroke="#F1E6CC" strokeDasharray="3 3" />
-              <circle cx={scales.sx(p.x)} cy={scales.sy(p.yModel)} r="7" fill="none" stroke="#F1E6CC" strokeWidth="2" />
-              <rect x={scales.sx(p.x) - 6} y={scales.sy(p.yBase) - 6} width="12" height="12" fill="none" stroke="#F1E6CC" strokeWidth="2" />
+              <line x1={scales.sx(p.x)} x2={scales.sx(p.x)} y1={scales.sy(p.yModel)} y2={scales.sy(p.yBase)} stroke="currentColor" strokeDasharray="3 3" />
+              <circle cx={scales.sx(p.x)} cy={scales.sy(p.yModel)} r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+              <rect x={scales.sx(p.x) - 6} y={scales.sy(p.yBase) - 6} width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" />
             </g>
           )}
         </svg>

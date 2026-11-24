@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './dna.css';
 import { ASSET, frameUrls } from './hooks';
 import { ScrubCanvas } from './ScrubCanvas';
 import { Ripple } from './Ripple';
 import { EncoderChapter } from './EncoderChapter';
 import { DenoiseSlider } from './DenoiseSlider';
-import { ContributionMap } from './ContributionMap';
-import { AccuracyChapter } from './AccuracyChapter';
+import { AnswerKeyChapter } from './AccuracyChapter';
+import { GeneHeatmaps } from './GeneHeatmaps';
 import { MouseChapter } from './MouseChapter';
 import { WhichIsReal } from './WhichIsReal';
 import { MusicToggle } from './MusicToggle';
@@ -16,7 +16,46 @@ import { MusicToggle } from './MusicToggle';
 const MUSIC_CREDIT = '';
 
 const FONTS =
-  'https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap';
+  'https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@500' +
+  '&family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,400..500&family=IBM+Plex+Mono:wght@400;500' +
+  '&family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500' +
+  '&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400' +
+  '&family=Space+Grotesk:wght@500;600;700&display=swap';
+
+// Style options for the preview. Pick one, then hard-code it and drop the picker.
+const THEMES = [
+  { key: 'lab', label: 'Lab', bg: '#0D0F12' },
+  { key: 'editorial', label: 'Editorial', bg: '#14120F' },
+  { key: 'paper', label: 'Paper', bg: '#F4F0E6' },
+  { key: 'poster', label: 'Poster', bg: '#0E0D0B' },
+] as const;
+type ThemeKey = (typeof THEMES)[number]['key'];
+
+function useTheme(): [ThemeKey, (t: ThemeKey) => void] {
+  const [theme, setTheme] = useState<ThemeKey>(() => {
+    const q = new URLSearchParams(window.location.search).get('style');
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem('d2d-style');
+    } catch {
+      /* storage blocked */
+    }
+    const pick = q ?? saved;
+    return THEMES.some((t) => t.key === pick) ? (pick as ThemeKey) : 'lab';
+  });
+  const set = (t: ThemeKey) => {
+    setTheme(t);
+    try {
+      localStorage.setItem('d2d-style', t);
+    } catch {
+      /* storage blocked */
+    }
+    const u = new URL(window.location.href);
+    u.searchParams.set('style', t);
+    window.history.replaceState(window.history.state, '', u);
+  };
+  return [theme, set];
+}
 
 const DENOISE = frameUrls('denoise');
 
@@ -40,24 +79,25 @@ function useFonts() {
 // - the portfolio's global CSS pins html/body to 100% height with their own scrollbars,
 //   which makes <body> the scroller; switch back to normal window scrolling so the
 //   scroll-driven scenes, sticky pins and iOS Safari's toolbar behave.
-function usePageShell() {
+function usePageShell(bg: string) {
   useEffect(() => {
     const els = [document.documentElement, document.body];
     const saved = els.map((el) => el.getAttribute('style'));
     els.forEach((el) => {
-      el.style.background = '#0E0D0B';
+      el.style.background = bg;
       el.style.height = 'auto';
       el.style.overflow = 'visible';
     });
     return () => {
       els.forEach((el, i) => (saved[i] === null ? el.removeAttribute('style') : el.setAttribute('style', saved[i]!)));
     };
-  }, []);
+  }, [bg]);
 }
 
 export function DnaStory({ onBack }: { onBack: () => void }) {
   useFonts();
-  usePageShell();
+  const [theme, setTheme] = useTheme();
+  usePageShell(THEMES.find((t) => t.key === theme)!.bg);
   const titleRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
@@ -68,7 +108,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
   }, []);
 
   return (
-    <div className="d2d">
+    <div className="d2d" data-theme={theme}>
       {/* shared filters: a light roughen for poster headings */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden focusable="false">
         <filter id="d2d-rough" x="-2%" y="-5%" width="104%" height="110%">
@@ -77,6 +117,13 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
         </filter>
       </svg>
       <div className="d2d-grain" aria-hidden />
+      <div className="style-picker" role="group" aria-label="Page style (preview)">
+        {THEMES.map((t) => (
+          <button key={t.key} aria-pressed={theme === t.key} onClick={() => setTheme(t.key)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       <div className="topbar">
         <a
@@ -100,7 +147,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
             load
             heightVh={320}
             startCover
-            glow
+            cutout={`${ASSET}denoise/cutout_bg.png`}
             endFraction={0.66}
             endOffset={-0.08}
             label="Random noise gradually denoising into a maize root cross-section generated from DNA"
@@ -128,20 +175,20 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 justifyContent: 'center',
                 padding: '0 18px',
                 textAlign: 'center',
-                background: 'radial-gradient(ellipse at center, rgba(14,13,11,.45), transparent 70%)',
+                background: 'radial-gradient(ellipse at center, rgb(var(--bg-rgb) / .6), transparent 72%)',
               }}
             >
-              <h1 id="d2d-title" style={{ margin: 0, textShadow: '0 4px 30px rgba(14,13,11,.6)' }}>
+              <h1 id="d2d-title" style={{ margin: 0, textShadow: '0 4px 30px rgb(var(--bg-rgb) / .7)' }}>
                 DNA to
                 <br />
                 Display
               </h1>
-              <p className="serif" style={{ fontSize: 'clamp(1.3rem, 4.5vw, 2rem)', fontStyle: 'italic', margin: '14px auto 0', maxWidth: '26ch', textShadow: '0 2px 18px #000' }}>
+              <p className="pull" style={{ fontSize: 'clamp(1.25rem, 4.2vw, 1.9rem)', margin: '14px auto 0', maxWidth: '26ch', textShadow: '0 2px 18px rgb(var(--bg-rgb))' }}>
                 Generating images of a plant's anatomy directly from its DNA.
               </p>
             </div>
             <div ref={hintRef} style={{ position: 'absolute', right: '12%', bottom: '16%' }} aria-hidden>
-              <span className="scrawl paper" style={{ fontSize: '2.2rem' }}>
+              <span className="scrawl" style={{ color: 'var(--fg)' }}>
                 scroll ↓
               </span>
             </div>
@@ -155,13 +202,13 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 padding: '48px 18px max(28px, 5vh)',
                 textAlign: 'center',
                 opacity: 0,
-                background: 'linear-gradient(transparent, rgba(14,13,11,.88) 38%)',
+                background: 'linear-gradient(transparent, rgb(var(--bg-rgb) / .9) 38%)',
               }}
             >
-              <p style={{ fontFamily: 'var(--f-poster)', textTransform: 'uppercase', fontSize: 'clamp(1.7rem, 6vw, 3.2rem)', lineHeight: 1, margin: '0 0 10px', filter: 'url(#d2d-rough)', textShadow: '0 2px 20px #000' }}>
+              <p className="poster-font" style={{ fontSize: 'clamp(1.6rem, 5.6vw, 3rem)', lineHeight: 1.05, margin: '0 0 10px', filter: 'var(--head-filter)' }}>
                 This root was never photographed.
               </p>
-              <p className="serif" style={{ fontSize: 'clamp(1.15rem, 3.6vw, 1.5rem)', fontStyle: 'italic', margin: '0 auto', maxWidth: '40ch', lineHeight: 1.3, textShadow: '0 2px 14px #000' }}>
+              <p className="pull" style={{ fontSize: 'clamp(1.1rem, 3.4vw, 1.45rem)', margin: '0 auto', maxWidth: '40ch', lineHeight: 1.35 }}>
                 A maize root cross-section, drawn by an AI from nothing but the plant's DNA. The model never saw this plant during
                 training.
               </p>
@@ -198,7 +245,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 <ComparisonRow label="Genomic prediction">
                   <div
                     className="mono"
-                    style={{ border: '2px solid var(--ink)', padding: '14px 16px', fontSize: 18, fontWeight: 500, transform: 'rotate(-1deg)', whiteSpace: 'nowrap' }}
+                    style={{ border: '2px solid var(--ink)', padding: '14px 16px', fontSize: 18, fontWeight: 500, transform: 'rotate(calc(var(--tilt) * -1deg))', whiteSpace: 'nowrap', borderRadius: 4 }}
                   >
                     stele = 0.95 mm
                   </div>
@@ -211,7 +258,7 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                     src={`${ASSET}pipeline/gen_root.png`}
                     alt="A root cross-section generated from the plant's DNA"
                     loading="lazy"
-                    style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink), 0 0 28px rgba(14,13,11,.35)' }}
+                    style={{ width: 96, height: 96, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
                   />
                   <Arrow />
                   <span className="scrawl ink" style={{ fontSize: '1.6rem' }}>
@@ -242,19 +289,19 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
                 { src: 'latent.png', cap: 'compressed code', note: '4 × 32 × 32 · 48× smaller', rot: -1, pix: true },
                 { src: 'recon_root.png', cap: 'rebuilt image', note: 'decoded back', rot: 2 },
               ].map((s, i, arr) => (
-                <figure key={s.src} style={{ margin: 0, transform: `rotate(${s.rot}deg)`, position: 'relative' }}>
-                  <div className="torn print halftone" style={{ background: 'var(--paper)', padding: 8 }}>
+                <figure key={s.src} className="tilt" style={{ margin: 0, position: 'relative', ['--r' as string]: `${s.rot}deg` }}>
+                  <div className="plate">
                     <img src={`${ASSET}pipeline/${s.src}`} alt={s.cap} loading="lazy" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', imageRendering: s.pix ? 'pixelated' : 'auto' }} />
                   </div>
                   <figcaption style={{ marginTop: 10 }}>
-                    <span style={{ fontFamily: 'var(--f-poster)', textTransform: 'uppercase', fontSize: 20 }}>{s.cap}</span>
+                    <span className="poster-font" style={{ fontSize: 19 }}>{s.cap}</span>
                     <br />
                     <span className="mono" style={{ opacity: 0.8 }}>
                       {s.note}
                     </span>
                   </figcaption>
                   {i < arr.length - 1 && (
-                    <span className="scrawl" aria-hidden style={{ position: 'absolute', right: -24, top: '38%', fontSize: '2.4rem', opacity: 0.9 }}>
+                    <span aria-hidden style={{ position: 'absolute', right: -24, top: '38%', fontSize: '1.8rem', opacity: 0.8, color: 'var(--gold)' }}>
                       →
                     </span>
                   )}
@@ -270,11 +317,11 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
         {/* 4 · Denoising slider */}
         <DenoiseSlider />
 
-        {/* 5 · Contribution map */}
-        <ContributionMap />
+        {/* 5 · Known-answer test on the synthetic (RIL) population, with the gene dial */}
+        <AnswerKeyChapter />
 
-        {/* 6 · Known-answer test */}
-        <AccuracyChapter />
+        {/* 6 · Where each gene shows up: heat maps on generated RIL roots */}
+        <GeneHeatmaps />
 
         {/* 7 · Mouse */}
         <Ripple>
@@ -353,7 +400,7 @@ function ComparisonRow({ label, children }: { label: string; children: React.Rea
           src={`${ASSET}pipeline/genotype.png`}
           alt="The plant's genotype"
           loading="lazy"
-          style={{ width: 96, height: 74, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)' }}
+          style={{ width: 96, height: 74, objectFit: 'cover', boxShadow: '0 0 0 2px var(--ink)', borderRadius: 4 }}
         />
         <Arrow />
         {children}

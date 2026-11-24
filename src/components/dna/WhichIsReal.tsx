@@ -92,7 +92,7 @@ export function WhichIsReal() {
             </>
           ) : (
             <>
-              <span style={{ fontFamily: 'var(--f-poster)', fontSize: 'clamp(2rem, 8vw, 3rem)', color: 'var(--gold)', filter: 'url(#d2d-rough)' }}>
+              <span className="poster-font" style={{ fontSize: 'clamp(2rem, 8vw, 3rem)', color: 'var(--accent)', filter: 'var(--head-filter)' }}>
                 {score} / 9 right
               </span>
               <button className="stamp" onClick={reset}>

@@ -12,20 +12,8 @@ export function DenoiseSlider() {
   useFrames(DENOISE, near);
   const [step, setStep] = useState(0);
 
-  const panel = (src: string, alt: string, caption: string, pixelated?: boolean) => (
-    <figure style={{ margin: 0 }}>
-      <div style={{ position: 'relative', aspectRatio: '1', background: '#000' }}>
-        <img
-          src={src}
-          alt={alt}
-          style={{ width: '100%', height: '100%', objectFit: 'contain', imageRendering: pixelated ? 'pixelated' : 'auto' }}
-        />
-      </div>
-      <figcaption className="mono" style={{ marginTop: 8, opacity: 0.8 }}>
-        {caption}
-      </figcaption>
-    </figure>
-  );
+  // the latent frames store the 4 channels as a 2 x 2 grid; lay them out side by side
+  const QUAD = ['0% 0%', '100% 0%', '0% 100%', '100% 100%'];
 
   return (
     <section ref={ref} className="ch" id="d2d-denoise" aria-labelledby="d2d-denoise-h">
@@ -37,9 +25,42 @@ export function DenoiseSlider() {
           code the model actually works in, and the image it decodes to.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 'clamp(10px, 3vw, 28px)', marginTop: 28 }}>
-          {panel(LATENT[step], `Compressed code at step ${step} of 50`, 'compressed code (4 × 32 × 32)', true)}
-          {panel(DENOISE[step], `Decoded root image at step ${step} of 50`, 'decoded image')}
+        <div className="denoise-views" style={{ marginTop: 28 }}>
+          <figure style={{ margin: 0 }}>
+            <div role="img" aria-label={`Compressed code at step ${step} of 50: four 32 by 32 channels`} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 'clamp(4px, 1.2vw, 10px)' }}>
+              {QUAD.map((pos, i) => (
+                <div
+                  key={pos}
+                  className="plate"
+                  style={{
+                    aspectRatio: '1',
+                    backgroundImage: `url(${LATENT[step]})`,
+                    backgroundSize: '200% 200%',
+                    backgroundPosition: pos,
+                    imageRendering: 'pixelated',
+                  }}
+                >
+                  <span className="mono" style={{ position: 'absolute', left: 4, bottom: 2, fontSize: 11, color: 'var(--paper)', opacity: 0.8 }}>
+                    ch {i + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <figcaption className="mono" style={{ marginTop: 8, opacity: 0.8 }}>
+              compressed code: 4 channels × 32 × 32
+            </figcaption>
+          </figure>
+          <div className="denoise-arrow mono" aria-hidden>
+            <span className="arr-down">↓ </span>decode<span className="arr-right"> →</span>
+          </div>
+          <figure style={{ margin: 0 }}>
+            <div className="plate" style={{ aspectRatio: '1' }}>
+              <img src={DENOISE[step]} alt={`Decoded root image at step ${step} of 50`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+            <figcaption className="mono" style={{ marginTop: 8, opacity: 0.8 }}>
+              decoded image
+            </figcaption>
+          </figure>
         </div>
 
         <div style={{ marginTop: 22 }}>
@@ -58,7 +79,7 @@ export function DenoiseSlider() {
           />
           <div className="mono" style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
             <span>random noise</span>
-            <span style={{ color: 'var(--gold)' }}>step {step} / 50</span>
+            <span style={{ color: 'var(--accent)' }}>step {step} / 50</span>
             <span>generated root</span>
           </div>
         </div>

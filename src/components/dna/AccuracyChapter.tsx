@@ -15,18 +15,7 @@ interface AccuracyData {
 
 const DIAL = [1, 3, 6, 8];
 
-const GENE_MAPS: { file: string; title: string; subtitle: string; special?: boolean }[] = [
-  { file: 'shared_stele_mx', title: 'Shared gene', subtitle: 'stele tissue' },
-  { file: 'mx_diam_add', title: 'Vessel-width gene', subtitle: 'vessel tissue' },
-  { file: 'mx_diam_epi', title: 'Interacting gene', subtitle: 'vessel tissue' },
-  { file: 'ctx_q1', title: 'Cortex gene 1', subtitle: 'cortex tissue' },
-  { file: 'ctx_q2', title: 'Cortex gene 2', subtitle: 'cortex tissue' },
-  { file: 'rca_linked1', title: 'Aerenchyma gene', subtitle: 'air-channel tissue' },
-  { file: 'lac_q', title: 'Lacuna gene', subtitle: 'trait never measured: the model still found it', special: true },
-  { file: 'control6', title: 'Control region', subtitle: 'no designed gene: should stay quiet' },
-];
-
-export function AccuracyChapter() {
+export function AnswerKeyChapter() {
   const ref = useRef<HTMLElement>(null);
   const near = useNear(ref);
   const data = useJson<AccuracyData>(`${ASSET}data/accuracy_scatter.json`, near);
@@ -49,17 +38,17 @@ export function AccuracyChapter() {
     <section ref={ref} id="d2d-accuracy" aria-labelledby="d2d-acc-h">
       <div className="ch">
         <div className="wrap">
-          <span className="kicker">06 · Does it actually work?</span>
+          <span className="kicker">05 · Does it actually work?</span>
           <h2 id="d2d-acc-h">A test with an answer key</h2>
           <div className="two-col" style={{ alignItems: 'start' }}>
             <div>
               <p>
-                Real plants don't come with an answer key. So we built a simulated population of 2,500 maize lines with root
-                genes we designed ourselves and simulated root images, so the true answer is known.
+                Real plants don't come with an answer key. So we built a synthetic population (RILs): 2,500 maize lines with
+                root genes we designed ourselves and simulated root images, so the true answer is known.
               </p>
               <p>The model was trained on 1,780 lines and tested on 198 it never saw.</p>
             </div>
-            <span className="scrawl paper" style={{ alignSelf: 'center', justifySelf: 'center' }}>
+            <span className="scrawl" style={{ alignSelf: 'center', justifySelf: 'center' }}>
               we wrote the genes, so we know the answers
             </span>
           </div>
@@ -116,7 +105,6 @@ export function AccuracyChapter() {
                   aria-checked={dial === i}
                   aria-pressed={dial === i}
                   onClick={() => setDial(i)}
-                  style={dial === i ? { background: 'var(--ink)', color: 'var(--gold)', borderColor: 'var(--ink)' } : { color: 'var(--ink)', borderColor: 'rgba(14,13,11,.5)' }}
                 >
                   gene = {v}
                 </button>
@@ -134,13 +122,12 @@ export function AccuracyChapter() {
               value={dial}
               onChange={(e) => setDial(Number(e.target.value))}
               aria-valuetext={`gene version ${DIAL[dial]}`}
-              style={{ filter: 'invert(1) hue-rotate(180deg)' }}
             />
             <p className="pull" style={{ marginTop: 24 }}>
               “Change one gene → the stele grows 19%. It grew in 99% of 256 line × seed tests.”
             </p>
           </div>
-          <div style={{ position: 'relative', aspectRatio: '1', background: '#000', maxWidth: 520, width: '100%', justifySelf: 'center' }}>
+          <div className="plate" style={{ overflow: 'visible', aspectRatio: '1', maxWidth: 520, width: '100%', justifySelf: 'center' }}>
             {DIAL.map((v, i) => (
               <img
                 key={v}
@@ -151,43 +138,13 @@ export function AccuracyChapter() {
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: i === dial ? 1 : 0, transition: 'opacity 0.45s' }}
               />
             ))}
-            <span className="scrawl ink" style={{ position: 'absolute', right: -6, bottom: -38, transform: 'rotate(-5deg)' }}>
+            <span className="scrawl ink" style={{ position: 'absolute', right: 0, bottom: -34 }}>
               gene = {DIAL[dial]}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Gene maps gallery */}
-      <div className="ch">
-        <div className="wrap">
-          <span className="kicker">Gene maps</span>
-          <h2>Where does each gene act?</h2>
-          <p style={{ maxWidth: 640 }}>
-            Swap one designed gene and map where the image gains or loses tissue. Gold is tissue gained, blue is tissue lost,
-            and the stronger the change, the more solid the colour.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 40vw), 1fr))', gap: 'clamp(14px, 3vw, 28px)', marginTop: 28 }}>
-            {GENE_MAPS.map((g, i) => (
-              <figure key={g.file} style={{ margin: 0, transform: `rotate(${[-1.5, 1, -0.5, 1.8, -1.2, 0.6, -1.8, 1.2][i]}deg)` }}>
-                <img src={`${ASSET}gene_maps/${g.file}.png`} alt={`Gene map: ${g.title}, ${g.subtitle}`} loading="lazy" style={{ width: '100%', aspectRatio: '1' }} />
-                <figcaption style={{ marginTop: 6 }}>
-                  <span style={{ fontFamily: 'var(--f-poster)', textTransform: 'uppercase', fontSize: 20, letterSpacing: '0.02em' }}>{g.title}</span>
-                  <br />
-                  <span style={{ fontSize: 16, color: g.special ? 'var(--gold)' : 'inherit', fontWeight: g.special ? 700 : 400, opacity: g.special ? 1 : 0.8 }}>{g.subtitle}</span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          <div className="mono" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 24 }} aria-hidden>
-            lost <span style={{ width: 160, height: 10, background: 'linear-gradient(90deg, #1F3F8F, #4E7BE8, transparent, #F1B82D)' }} /> gained
-          </div>
-          <p className="pull" style={{ marginTop: 28 }}>
-            “Swap one designed gene and map where tissue is gained or lost: 12 of 14 designed genes point to the right tissue.”
-          </p>
-          <p className="mono" style={{ opacity: 0.75 }}>96 line–seed pairs per gene, on unseen lines.</p>
-        </div>
-      </div>
     </section>
   );
 }

@@ -20,9 +20,19 @@ const INK = hexRgb('#0E0D0B');
 const GOLD = hexRgb('#F1B82D');
 const BLUE = hexRgb('#4E7BE8');
 const mix = (a: number[], b: number[], t: number) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
-// diverging blue <-> ink <-> gold
+// Canvas colours follow the page theme: the diverging scale fades into the page background,
+// and the cream founder colour becomes the text colour (so it shows on a light page too).
+let BASE = INK;
+const FC = [...FOUNDER_COLORS];
+function readTheme(el: Element) {
+  const cs = getComputedStyle(el);
+  const bg = cs.getPropertyValue('--bg-rgb').trim().split(/\s+/).map(Number);
+  if (bg.length === 3 && bg.every((n) => !Number.isNaN(n))) BASE = bg;
+  FC[2] = cs.getPropertyValue('--fg').trim() || FOUNDER_COLORS[2];
+}
+// diverging blue <-> background <-> gold
 const diverge = (t: number) => {
-  const c = t < 0 ? mix(INK, BLUE, Math.min(1, -t)) : mix(INK, GOLD, Math.min(1, t));
+  const c = t < 0 ? mix(BASE, BLUE, Math.min(1, -t)) : mix(BASE, GOLD, Math.min(1, t));
   return `rgb(${c[0]},${c[1]},${c[2]})`;
 };
 
@@ -61,6 +71,7 @@ function binCodes(codes: Uint8Array, cols: number) {
 // reduced-motion version can render still panels from the same code.
 function drawEncoder(ctx: CanvasRenderingContext2D, w: number, h: number, p: number, time: number, d: Prepared, bins: Float32Array[], overlays = true) {
   ctx.clearRect(0, 0, w, h);
+  readTheme(ctx.canvas);
   const mx = Math.max(16, w * 0.05);
   const fullW = w - mx * 2;
   const cols = bins.length;
@@ -91,7 +102,7 @@ function drawEncoder(ctx: CanvasRenderingContext2D, w: number, h: number, p: num
       for (let c = 0; c < cols; c++) {
         let best = 0;
         for (let f = 1; f < 8; f++) if (bins[c][f] > bins[c][best]) best = f;
-        ctx.fillStyle = FOUNDER_COLORS[best];
+        ctx.fillStyle = FC[best];
         ctx.fillRect(x0 + c * cw, bandY, Math.ceil(cw), bandH);
       }
     }
@@ -99,7 +110,7 @@ function drawEncoder(ctx: CanvasRenderingContext2D, w: number, h: number, p: num
       for (let f = 0; f < 8; f++) {
         const y = lerp(bandY, rowsTop + f * rowH, split);
         const hh = lerp(bandH, rowH * 0.78, split);
-        ctx.fillStyle = FOUNDER_COLORS[f];
+        ctx.fillStyle = FC[f];
         for (let c = 0; c < cols; c++) {
           const v = bins[c][f];
           if (v <= 0) continue;
@@ -205,7 +216,7 @@ function Legend({ raw }: { raw: EncoderData }) {
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }} aria-label="Founder lines and their share of this plant's DNA">
       {raw.founders.map((f, i) => (
         <li key={f} className="mono" style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0, fontSize: 16 }}>
-          <span aria-hidden style={{ width: 14, height: 14, background: FOUNDER_COLORS[i], display: 'inline-block' }} />
+          <span aria-hidden style={{ width: 14, height: 14, background: i === 2 ? 'var(--fg)' : FOUNDER_COLORS[i], display: 'inline-block', borderRadius: 2 }} />
           F{f} {Math.round(raw.founder_share[String(f)] * 100)}%
         </li>
       ))}
@@ -282,7 +293,7 @@ function EncoderScroll({ d, raw }: { d: Prepared; raw: EncoderData }) {
               ref={(el) => (stageRefs.current[i] = el)}
               style={{ position: 'absolute', inset: 0, opacity: i === 0 ? 1 : 0, transition: 'opacity 0.35s' }}
             >
-              <span className="mono" style={{ color: 'var(--gold)' }}>
+              <span className="mono" style={{ color: 'var(--accent)' }}>
                 Step {i + 1} of 4
               </span>
               <h3 style={{ margin: '4px 0 6px' }}>{s.title}</h3>
@@ -327,7 +338,7 @@ function EncoderStills({ d, raw }: { d: Prepared; raw: EncoderData }) {
               style={{ width: '100%', height: 220, display: 'block' }}
             />
             <figcaption>
-              <span className="mono" style={{ color: 'var(--gold)' }}>
+              <span className="mono" style={{ color: 'var(--accent)' }}>
                 Step {i + 1} · {s.title}
               </span>
               <p style={{ margin: '4px 0 0' }}>{s.body}</p>

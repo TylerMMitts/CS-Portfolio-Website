@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
-import { clamp, lerp, useFrames, useReducedMotion, useScrollProgress } from './hooks';
+import { clamp, lerp, smooth, useFrames, useReducedMotion, useScrollProgress } from './hooks';
 
 interface Props {
   frames: string[];
@@ -10,7 +10,9 @@ interface Props {
   endFraction?: number;
   endOffset?: number; // vertical shift of the final frame, as a fraction of screen height
   invert?: boolean;
-  glow?: boolean;
+  // image whose opaque pixels mark the background around the final root; it is cut away
+  // (made transparent) as the root takes shape, leaving a clean cut-out on the page
+  cutout?: string;
   // overlay rendered on top of the canvas; receives the element refs to animate by progress
   onProgress?: (p: number) => void;
   children?: ReactNode;
@@ -21,7 +23,7 @@ interface Props {
 // through them quickly (ease-out on the step index) and slows where the structure appears.
 const stepFor = (p: number) => Math.round(50 * (1 - Math.pow(1 - clamp(p), 1.8)));
 
-export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 0.84, endOffset = 0, invert, glow, onProgress, children, label }: Props) {
+export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 0.84, endOffset = 0, invert, cutout, onProgress, children, label }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
@@ -29,6 +31,17 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
   const progress = useRef(0);
   const imgsRef = useRef(imgs);
   imgsRef.current = imgs;
+  const cutRef = useRef<HTMLImageElement | null>(null);
+  useEffect(() => {
+    if (!cutout || !load) return;
+    const im = new Image();
+    im.onload = () => {
+      cutRef.current = im;
+      draw();
+    };
+    im.src = cutout;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cutout, load]);
 
   const draw = () => {
     const c = canvasRef.current;
@@ -57,7 +70,18 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
     const s = lerp(startSize, endSize, t);
     ctx.imageSmoothingQuality = 'high';
     const dy = endOffset * h * t;
-    ctx.drawImage(img, (w - s) / 2, (h - s) / 2 + dy, s, s);
+    const x = (w - s) / 2;
+    const y = (h - s) / 2 + dy;
+    ctx.drawImage(img, x, y, s, s);
+    // the root becomes recognisable around step 34; cut its background away by step 44
+    const k = cutRef.current ? smooth(i, 33, 44) : 0;
+    if (k > 0) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.globalAlpha = k;
+      ctx.drawImage(cutRef.current!, x, y, s, s);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
   };
 
   useScrollProgress(trackRef, (p) => {
@@ -72,7 +96,6 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
   return (
     <div ref={trackRef} className="pin-track" style={{ height: reduced ? '100vh' : `${heightVh}vh` }}>
       <div className="pin">
-        {glow && <div className="glow" style={{ transform: `translateY(${endOffset * 100}%)` }} />}
         <canvas
           ref={canvasRef}
           role="img"
