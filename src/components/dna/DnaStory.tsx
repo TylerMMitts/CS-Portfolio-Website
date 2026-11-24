@@ -384,29 +384,32 @@ function Arrow() {
   );
 }
 
-// Sharp gold shapes behind the cut-out root, to contrast with its round outline:
-// an uneven angular burst plus a few loose shards. They swing into place as the root
-// forms (driven by --k from the scroll position).
+// A gold zig-zag behind the cut-out root: sharp, uneven and off-centre, to contrast with the
+// round root. It draws itself in as the root forms (driven by --k from the scroll position).
 const ColdBackdrop = forwardRef<HTMLDivElement>(function ColdBackdrop(_, ref) {
   return (
     <div ref={ref} className="cold-backdrop" aria-hidden>
       <svg viewBox="-20 -20 140 140" width="100%" height="100%">
-        <g className="cb-burst">
-          <polygon
-            points="52,-16 63,17 100,2 82,36 120,50 84,66 104,104 64,86 46,120 36,86 -6,104 14,64 -20,44 18,32 0,-4 36,14"
-            fill="#F1B82D"
-          />
-        </g>
-        <g className="cb-shards" fill="#F1B82D">
-          <polygon points="104,-14 118,-4 100,6" />
-          <polygon points="-16,76 -4,92 -18,96" />
-          <polygon points="112,84 120,104 104,98" opacity="0.8" />
-          <polygon points="-12,-12 6,-16 -4,2" opacity="0.8" />
-        </g>
-        <g className="cb-lines" fill="none" stroke="#F1B82D" strokeWidth="0.8" strokeLinejoin="miter">
-          <polygon points="88,112 118,118 100,92" />
-          <polyline points="-18,14 -8,4 -14,-6" />
-        </g>
+        <polyline
+          className="cb-zig"
+          points="-26,86 -6,58 8,80 26,36 42,66 62,14 76,46 92,4 104,30 128,-2"
+          pathLength={1}
+          fill="none"
+          stroke="#F1B82D"
+          strokeWidth="9"
+          strokeLinejoin="miter"
+          strokeMiterlimit={10}
+        />
+        <polyline
+          className="cb-zig cb-zig-thin"
+          points="-24,112 0,96 12,108 34,84 46,100 70,76 84,94 110,70 126,82"
+          pathLength={1}
+          fill="none"
+          stroke="#F1B82D"
+          strokeWidth="1.6"
+          strokeLinejoin="miter"
+          strokeMiterlimit={10}
+        />
       </svg>
     </div>
   );

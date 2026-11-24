@@ -332,7 +332,7 @@
   .d2d .denoise-arrow .arr-down { display: none; }
 }
 
-/* cold open: sharp gold shapes behind the cut-out root */
+/* cold open: a gold zig-zag behind the cut-out root */
 .d2d .cold-backdrop {
   --k: 0;
   position: absolute;
@@ -344,10 +344,8 @@
   opacity: 0;
   pointer-events: none;
 }
-.d2d .cold-backdrop g { transform-box: view-box; transform-origin: 50% 50%; }
-.d2d .cold-backdrop .cb-burst { transform: rotate(calc((1 - var(--k)) * -22deg)) scale(calc(0.8 + var(--k) * 0.2)); }
-.d2d .cold-backdrop .cb-shards { transform: rotate(calc((1 - var(--k)) * 12deg)) scale(calc(1.15 - var(--k) * 0.15)); }
-.d2d .cold-backdrop .cb-lines { transform: rotate(calc((1 - var(--k)) * 18deg)); opacity: calc(var(--k) * 0.8); }
+.d2d .cold-backdrop .cb-zig { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--k)); }
+.d2d .cold-backdrop .cb-zig-thin { opacity: 0.7; stroke-dashoffset: calc(1 - var(--k) * var(--k)); }
 @media (min-aspect-ratio: 10/13) {
   .d2d .cold-backdrop { width: calc(66vmin * 1.75); }
 }

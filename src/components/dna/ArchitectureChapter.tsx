@@ -276,25 +276,26 @@ export function ArchitectureChapter() {
         YOLO · root, stele, vessels
       </text>
       <line x1={200} y1={843} x2={200} y2={868} stroke="currentColor" strokeWidth={1.5} markerEnd="url(#arch-arrow)" opacity={0.6} />
-      <rect x={60} y={870} width={150} height={150} fill="#000" />
+      {/* measured image centred under the arrow, what to measure beside it */}
+      <rect x={130} y={870} width={140} height={140} fill="#000" />
       <image
         href={`${ASSET}pipeline/gen_root_measured.webp`}
-        x={60}
+        x={130}
         y={870}
-        width={150}
-        height={150}
+        width={140}
+        height={140}
         opacity={stage >= 3 ? smooth(local(3), 0.35, 0.75) || (stage > 3 ? 1 : 0) : 0}
       />
-      <g opacity={stage >= 3 ? smooth(local(3), 0.55, 0.9) || (stage > 3 ? 1 : 0) : 0} fontSize="11.5" fill="currentColor">
-        <text x={224} y={900} fill={GOLD}>
+      <g opacity={stage >= 3 ? smooth(local(3), 0.55, 0.9) || (stage > 3 ? 1 : 0) : 0} fontSize="11" fill="currentColor">
+        <text x={280} y={900} fill={GOLD}>
           measure:
         </text>
-        <text x={224} y={920}>stele width</text>
-        <text x={224} y={938}>vessels: 14</text>
-        <text x={224} y={956}>cortex width</text>
-        <text x={224} y={974}>air channels</text>
-        <text x={224} y={992} opacity={0.7}>
-          …anything you can outline
+        <text x={280} y={918}>stele width</text>
+        <text x={280} y={935}>vessels: 14</text>
+        <text x={280} y={952}>cortex width</text>
+        <text x={280} y={969}>air channels</text>
+        <text x={280} y={986} opacity={0.7}>
+          …and more
         </text>
       </g>
 
