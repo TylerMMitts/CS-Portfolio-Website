@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { clamp, lerp, smooth, useFrames, useReducedMotion, useScrollProgress } from './hooks';
+import { useStepScroll } from './useStepScroll';
 
 interface Props {
   frames: string[];
@@ -14,6 +15,9 @@ interface Props {
   // (made transparent) as the root takes shape, leaving a clean cut-out on the page
   cutout?: string;
   backdrop?: ReactNode; // drawn behind the canvas
+  // progress stops: each swipe glides to the next one instead of scrolling freely
+  stops?: number[];
+  stepMs?: number; // time to glide through the whole scene
   // overlay rendered on top of the canvas; receives the element refs to animate by progress
   onProgress?: (p: number) => void;
   children?: ReactNode;
@@ -24,7 +28,7 @@ interface Props {
 // through them quickly (ease-out on the step index) and slows where the structure appears.
 const stepFor = (p: number) => Math.round(50 * (1 - Math.pow(1 - clamp(p), 1.8)));
 
-export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 0.84, endOffset = 0, invert, cutout, backdrop, onProgress, children, label }: Props) {
+export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 0.84, endOffset = 0, invert, cutout, backdrop, stops, stepMs = 2600, onProgress, children, label }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
@@ -90,6 +94,8 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
       ctx.globalAlpha = 1;
     }
   };
+
+  useStepScroll(trackRef, stops, stepMs, !reduced);
 
   useScrollProgress(trackRef, (p) => {
     progress.current = p;

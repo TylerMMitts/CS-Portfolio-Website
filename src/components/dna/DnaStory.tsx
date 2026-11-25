@@ -106,6 +106,9 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
             endOffset={-0.08}
             label="Random noise gradually denoising into a maize root cross-section generated from DNA"
             backdrop={<ColdBackdrop ref={backdropRef} />}
+            // one swipe plays the whole denoise, from the title to the finished root
+            stops={[0, 1]}
+            stepMs={2600}
             onProgress={(p) => {
               // abstract shapes come up while the root's background is cut away (steps 33 to 44)
               const el = backdropRef.current;

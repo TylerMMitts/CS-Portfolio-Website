@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { ASSET, lerp, smooth, useJson, useNear, useReducedMotion, useScrollProgress } from './hooks';
+import { useStepScroll } from './useStepScroll';
 
 // Real values for one line of the synthetic (RIL) population, from the trained window encoder:
 // its SNP dosages, the 50 windows of 200 SNPs with each window's 4 learned features and gate,
@@ -289,6 +290,8 @@ function drawEncoder(ctx: CanvasRenderingContext2D, w: number, h: number, p: num
   ctx.globalAlpha = 1;
 }
 
+const ENCODER_STOPS = [0, 0.25, 0.41, 0.63, 0.78, 1];
+
 const STAGES = [
   {
     at: 0,
@@ -389,6 +392,9 @@ function EncoderScroll({ d, raw }: { d: Prepared; raw: EncoderData }) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawEncoder(ctx, w, h, progress.current, time / 1000, raw, d);
   };
+
+  // one swipe per step: each stop is where that step's animation has finished
+  useStepScroll(trackRef, ENCODER_STOPS, 5200);
 
   useScrollProgress(trackRef, (p) => {
     progress.current = p;

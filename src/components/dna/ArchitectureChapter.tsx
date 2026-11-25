@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { ASSET, clamp, frameUrls, lerp, smooth, useFrames, useNear, useReducedMotion, useScrollProgress } from './hooks';
+import { useStepScroll } from './useStepScroll';
 
 const LATENT = frameUrls('latent');
 
@@ -67,6 +68,8 @@ export function ArchitectureChapter() {
   useFrames(LATENT, near);
   const reduced = useReducedMotion();
   const [p, setP] = useState(0);
+  // one swipe per stage: each stop is just before the next stage starts, with the animation finished
+  useStepScroll(trackRef, [0, 0.19, 0.41, 0.6, 0.81, 1], 5200, !reduced);
   useScrollProgress(trackRef, (v) => setP((old) => (Math.abs(old - v) > 0.001 || v === 0 || v === 1 ? v : old)));
   const P = reduced ? 1 : p;
 
