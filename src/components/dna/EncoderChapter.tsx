@@ -394,7 +394,7 @@ function EncoderScroll({ d, raw }: { d: Prepared; raw: EncoderData }) {
   };
 
   // one swipe per step: each stop is where that step's animation has finished
-  useStepScroll(trackRef, ENCODER_STOPS, 5200);
+  useStepScroll(trackRef, ENCODER_STOPS, 6400);
 
   useScrollProgress(trackRef, (p) => {
     progress.current = p;

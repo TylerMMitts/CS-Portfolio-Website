@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { clamp, lerp, smooth, useFrames, useReducedMotion, useScrollProgress } from './hooks';
-import { useStepScroll } from './useStepScroll';
+import { easeIn, useStepScroll } from './useStepScroll';
 
 interface Props {
   frames: string[];
@@ -95,7 +95,8 @@ export function ScrubCanvas({ frames, load, heightVh, startCover, endFraction = 
     }
   };
 
-  useStepScroll(trackRef, stops, stepMs, !reduced);
+  // the denoise starts slow and speeds up as the root appears
+  useStepScroll(trackRef, stops, stepMs, !reduced, easeIn);
 
   useScrollProgress(trackRef, (p) => {
     progress.current = p;

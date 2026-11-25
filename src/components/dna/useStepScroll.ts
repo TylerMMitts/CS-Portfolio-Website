@@ -13,6 +13,7 @@ interface Scene {
   ref: RefObject<HTMLElement>;
   stops: number[];
   ms: number; // duration for moving through the whole scene (0 -> 1)
+  ease: (t: number) => number;
 }
 
 const scenes = new Set<Scene>();
@@ -69,9 +70,11 @@ const holdAt = (y: number, ms: number) => {
 };
 const holding = () => touchHeld || performance.now() < holdUntil || performance.now() < wheelQuietAt;
 
-const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+// starts slow and keeps speeding up until it lands
+export const easeIn = (t: number) => Math.pow(t, 2.4);
+export const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
-const glide = (to: number, ms: number) => {
+const glide = (to: number, ms: number, ease: (t: number) => number) => {
   cancelAnimationFrame(raf);
   const from = window.scrollY;
   const t0 = performance.now();
@@ -100,7 +103,7 @@ const step = (d: 1 | -1): boolean => {
   const eps = 0.004;
   const target = d > 0 ? at.s.stops.find((v) => v > at.p + eps) : [...at.s.stops].reverse().find((v) => v < at.p - eps);
   if (target === undefined) return false;
-  glide(at.start + target * at.span, Math.max(380, Math.abs(target - at.p) * at.s.ms));
+  glide(at.start + target * at.span, Math.max(450, Math.abs(target - at.p) * at.s.ms), at.s.ease);
   return true;
 };
 
@@ -228,12 +231,12 @@ function detach() {
   document.documentElement.style.overflow = '';
 }
 
-export function useStepScroll(ref: RefObject<HTMLElement>, stops: number[] | undefined, ms: number, enabled = true) {
+export function useStepScroll(ref: RefObject<HTMLElement>, stops: number[] | undefined, ms: number, enabled = true, ease: (t: number) => number = easeInOut) {
   const scene = useRef<Scene | null>(null);
   const key = stops?.join(',') ?? '';
   useEffect(() => {
     if (!enabled || !stops?.length) return;
-    const s: Scene = { ref, stops: [...stops].sort((a, b) => a - b), ms };
+    const s: Scene = { ref, stops: [...stops].sort((a, b) => a - b), ms, ease };
     scene.current = s;
     scenes.add(s);
     attach();

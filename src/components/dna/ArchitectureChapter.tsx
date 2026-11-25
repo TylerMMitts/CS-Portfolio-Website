@@ -52,12 +52,14 @@ function activeStage(p: number) {
 function focusAt(p: number): [number, number] {
   const i = activeStage(p);
   const s = STAGES[i];
+  const prev = STAGES[i - 1];
   const next = STAGES[i + 1];
   const cur = s.focus as [number, number];
-  if (!next) return cur;
-  // move to the next stage's focus over the last 30% of this stage
-  const t = smooth(p, lerp(s.at, next.at, 0.7), next.at);
-  return [lerp(cur[0], next.focus[0], t), lerp(cur[1], next.focus[1], t)];
+  if (!prev) return cur;
+  // move from the previous stage's focus over the first 30% of this stage, so each swipe
+  // (one per stage) pans to its own model and the zoom-out gets a swipe of its own
+  const t = smooth(p, s.at, lerp(s.at, next?.at ?? 1, 0.3));
+  return [lerp(prev.focus[0], cur[0], t), lerp(prev.focus[1], cur[1], t)];
 }
 
 export function ArchitectureChapter() {
@@ -69,7 +71,7 @@ export function ArchitectureChapter() {
   const reduced = useReducedMotion();
   const [p, setP] = useState(0);
   // one swipe per stage: each stop is just before the next stage starts, with the animation finished
-  useStepScroll(trackRef, [0, 0.19, 0.41, 0.6, 0.81, 1], 5200, !reduced);
+  useStepScroll(trackRef, [0, 0.19, 0.41, 0.6, 0.81, 1], 6400, !reduced);
   useScrollProgress(trackRef, (v) => setP((old) => (Math.abs(old - v) > 0.001 || v === 0 || v === 1 ? v : old)));
   const P = reduced ? 1 : p;
 

@@ -62,7 +62,7 @@ export function MouseChapter() {
       <ScrubCanvas
         frames={FRAMES}
         load={near}
-        heightVh={200}
+        heightVh={340}
         endFraction={0.78}
         invert
         label="Noise turning into a mouse X-ray generated for held-out mouse M01151, shown film-negative"
