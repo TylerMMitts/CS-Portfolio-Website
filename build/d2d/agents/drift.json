@@ -1,0 +1,551 @@
+{
+ "note": "Raw IMPC BCM X-rays. Mouse size is the square root of the detected mouse area in source pixels; after = after d2d scaled each imaging setup to the largest one.",
+ "size_by_setup": [
+  {
+   "image_width_px": 2048,
+   "images": 2790,
+   "median_mouse_size_px": 765.8,
+   "scale_factor": 0.989,
+   "raw": "caught/setup_2048_raw.webp",
+   "prepared": "caught/setup_2048_prepared.webp",
+   "has_legend_panel_share": 0.0
+  },
+  {
+   "image_width_px": 2324,
+   "images": 192,
+   "median_mouse_size_px": 679.0,
+   "scale_factor": 1.116,
+   "raw": "caught/setup_2324_raw.webp",
+   "prepared": "caught/setup_2324_prepared.webp",
+   "has_legend_panel_share": 0.99
+  },
+  {
+   "image_width_px": 2364,
+   "images": 4385,
+   "median_mouse_size_px": 757.4,
+   "scale_factor": 1.0,
+   "raw": "caught/setup_2364_raw.webp",
+   "prepared": "caught/setup_2364_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2500,
+   "images": 1102,
+   "median_mouse_size_px": 626.3,
+   "scale_factor": 1.209,
+   "raw": "caught/setup_2500_raw.webp",
+   "prepared": "caught/setup_2500_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2800,
+   "images": 20,
+   "median_mouse_size_px": 619.5,
+   "scale_factor": 1.222,
+   "raw": "caught/setup_2800_raw.webp",
+   "prepared": "caught/setup_2800_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2948,
+   "images": 285,
+   "median_mouse_size_px": 630.7,
+   "scale_factor": 1.201,
+   "raw": "caught/setup_2948_raw.webp",
+   "prepared": "caught/setup_2948_prepared.webp",
+   "has_legend_panel_share": 1.0
+  }
+ ],
+ "brightness_by_month": [
+  {
+   "month": "2013-09",
+   "images": 26,
+   "subject_brightness": 0.6219,
+   "background_brightness": 0.1078
+  },
+  {
+   "month": "2013-10",
+   "images": 28,
+   "subject_brightness": 0.6115,
+   "background_brightness": 0.1216
+  },
+  {
+   "month": "2013-12",
+   "images": 39,
+   "subject_brightness": 0.5811,
+   "background_brightness": 0.0824
+  },
+  {
+   "month": "2014-01",
+   "images": 58,
+   "subject_brightness": 0.5803,
+   "background_brightness": 0.0824
+  },
+  {
+   "month": "2014-02",
+   "images": 74,
+   "subject_brightness": 0.6133,
+   "background_brightness": 0.0824
+  },
+  {
+   "month": "2014-03",
+   "images": 76,
+   "subject_brightness": 0.7034,
+   "background_brightness": 0.2745
+  },
+  {
+   "month": "2014-04",
+   "images": 74,
+   "subject_brightness": 0.7066,
+   "background_brightness": 0.2706
+  },
+  {
+   "month": "2014-05",
+   "images": 68,
+   "subject_brightness": 0.6163,
+   "background_brightness": 0.0784
+  },
+  {
+   "month": "2014-06",
+   "images": 94,
+   "subject_brightness": 0.6105,
+   "background_brightness": 0.0784
+  },
+  {
+   "month": "2014-07",
+   "images": 57,
+   "subject_brightness": 0.5955,
+   "background_brightness": 0.0353
+  },
+  {
+   "month": "2014-08",
+   "images": 28,
+   "subject_brightness": 0.5855,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2014-10",
+   "images": 30,
+   "subject_brightness": 0.5856,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2014-11",
+   "images": 76,
+   "subject_brightness": 0.588,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2014-12",
+   "images": 127,
+   "subject_brightness": 0.7026,
+   "background_brightness": 0.2157
+  },
+  {
+   "month": "2015-01",
+   "images": 120,
+   "subject_brightness": 0.8099,
+   "background_brightness": 0.2471
+  },
+  {
+   "month": "2015-02",
+   "images": 80,
+   "subject_brightness": 0.5831,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2015-03",
+   "images": 97,
+   "subject_brightness": 0.5951,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2015-04",
+   "images": 68,
+   "subject_brightness": 0.5795,
+   "background_brightness": 0.0314
+  },
+  {
+   "month": "2015-05",
+   "images": 101,
+   "subject_brightness": 0.4412,
+   "background_brightness": 0.0078
+  },
+  {
+   "month": "2015-06",
+   "images": 69,
+   "subject_brightness": 0.4646,
+   "background_brightness": 0.0078
+  },
+  {
+   "month": "2015-07",
+   "images": 43,
+   "subject_brightness": 0.4506,
+   "background_brightness": 0.0039
+  },
+  {
+   "month": "2015-08",
+   "images": 79,
+   "subject_brightness": 0.4498,
+   "background_brightness": 0.0118
+  },
+  {
+   "month": "2015-09",
+   "images": 69,
+   "subject_brightness": 0.4821,
+   "background_brightness": 0.0235
+  },
+  {
+   "month": "2015-10",
+   "images": 47,
+   "subject_brightness": 0.5079,
+   "background_brightness": 0.0275
+  },
+  {
+   "month": "2015-11",
+   "images": 78,
+   "subject_brightness": 0.5375,
+   "background_brightness": 0.0412
+  },
+  {
+   "month": "2015-12",
+   "images": 127,
+   "subject_brightness": 0.6495,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-01",
+   "images": 77,
+   "subject_brightness": 0.6478,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-02",
+   "images": 113,
+   "subject_brightness": 0.6454,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-03",
+   "images": 91,
+   "subject_brightness": 0.6516,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-04",
+   "images": 97,
+   "subject_brightness": 0.6505,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-05",
+   "images": 143,
+   "subject_brightness": 0.6473,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-06",
+   "images": 98,
+   "subject_brightness": 0.6511,
+   "background_brightness": 0.0471
+  },
+  {
+   "month": "2016-07",
+   "images": 124,
+   "subject_brightness": 0.6664,
+   "background_brightness": 0.0431
+  },
+  {
+   "month": "2016-08",
+   "images": 181,
+   "subject_brightness": 0.6606,
+   "background_brightness": 0.0392
+  },
+  {
+   "month": "2016-09",
+   "images": 158,
+   "subject_brightness": 0.6289,
+   "background_brightness": 0.0392
+  },
+  {
+   "month": "2016-10",
+   "images": 223,
+   "subject_brightness": 0.6272,
+   "background_brightness": 0.0392
+  },
+  {
+   "month": "2016-11",
+   "images": 168,
+   "subject_brightness": 0.6725,
+   "background_brightness": 0.0431
+  },
+  {
+   "month": "2016-12",
+   "images": 131,
+   "subject_brightness": 0.6766,
+   "background_brightness": 0.0667
+  },
+  {
+   "month": "2017-01",
+   "images": 86,
+   "subject_brightness": 0.6739,
+   "background_brightness": 0.0667
+  },
+  {
+   "month": "2017-02",
+   "images": 136,
+   "subject_brightness": 0.6747,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2017-03",
+   "images": 106,
+   "subject_brightness": 0.6729,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2017-04",
+   "images": 174,
+   "subject_brightness": 0.6742,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2017-05",
+   "images": 250,
+   "subject_brightness": 0.6719,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-06",
+   "images": 134,
+   "subject_brightness": 0.673,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-07",
+   "images": 58,
+   "subject_brightness": 0.6754,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-08",
+   "images": 163,
+   "subject_brightness": 0.6727,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-09",
+   "images": 107,
+   "subject_brightness": 0.674,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2017-10",
+   "images": 112,
+   "subject_brightness": 0.6774,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-11",
+   "images": 150,
+   "subject_brightness": 0.6801,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2017-12",
+   "images": 112,
+   "subject_brightness": 0.677,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-01",
+   "images": 206,
+   "subject_brightness": 0.6811,
+   "background_brightness": 0.1039
+  },
+  {
+   "month": "2018-02",
+   "images": 110,
+   "subject_brightness": 0.6832,
+   "background_brightness": 0.1039
+  },
+  {
+   "month": "2018-03",
+   "images": 122,
+   "subject_brightness": 0.6789,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-04",
+   "images": 106,
+   "subject_brightness": 0.6834,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-05",
+   "images": 136,
+   "subject_brightness": 0.6858,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-06",
+   "images": 129,
+   "subject_brightness": 0.6776,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-07",
+   "images": 224,
+   "subject_brightness": 0.6843,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2018-08",
+   "images": 241,
+   "subject_brightness": 0.6825,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-09",
+   "images": 146,
+   "subject_brightness": 0.6817,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-10",
+   "images": 154,
+   "subject_brightness": 0.6777,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-11",
+   "images": 80,
+   "subject_brightness": 0.6739,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2018-12",
+   "images": 68,
+   "subject_brightness": 0.6809,
+   "background_brightness": 0.102
+  },
+  {
+   "month": "2019-01",
+   "images": 144,
+   "subject_brightness": 0.6777,
+   "background_brightness": 0.1059
+  },
+  {
+   "month": "2019-02",
+   "images": 88,
+   "subject_brightness": 0.6893,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2019-03",
+   "images": 203,
+   "subject_brightness": 0.6927,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2019-04",
+   "images": 74,
+   "subject_brightness": 0.6987,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2019-05",
+   "images": 118,
+   "subject_brightness": 0.6958,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2019-06",
+   "images": 167,
+   "subject_brightness": 0.6938,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2019-07",
+   "images": 133,
+   "subject_brightness": 0.6874,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2019-08",
+   "images": 109,
+   "subject_brightness": 0.6757,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2019-09",
+   "images": 96,
+   "subject_brightness": 0.6844,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2019-10",
+   "images": 72,
+   "subject_brightness": 0.6858,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2019-11",
+   "images": 48,
+   "subject_brightness": 0.6877,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2019-12",
+   "images": 68,
+   "subject_brightness": 0.6883,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2020-01",
+   "images": 74,
+   "subject_brightness": 0.6826,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2020-02",
+   "images": 27,
+   "subject_brightness": 0.6907,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2021-04",
+   "images": 86,
+   "subject_brightness": 0.6957,
+   "background_brightness": 0.0627
+  },
+  {
+   "month": "2021-05",
+   "images": 181,
+   "subject_brightness": 0.682,
+   "background_brightness": 0.0588
+  },
+  {
+   "month": "2021-06",
+   "images": 224,
+   "subject_brightness": 0.6935,
+   "background_brightness": 0.0549
+  },
+  {
+   "month": "2021-07",
+   "images": 51,
+   "subject_brightness": 0.6933,
+   "background_brightness": 0.0549
+  }
+ ],
+ "flagged": [
+  "background brightness shifts with date-of-experiment (67% of its variance)",
+  "subject brightness shifts with date-of-experiment (67% of its variance)",
+  "subject-background contrast shifts with date-of-experiment (49% of its variance)",
+  "background brightness shifts with source_size (47% of its variance)",
+  "subject size (px) shifts with date-of-experiment (45% of its variance, group medians differ up to 1.29x)",
+  "subject brightness shifts with source_size (44% of its variance)",
+  "subject-background contrast shifts with source_size (44% of its variance)",
+  "subject size (px) shifts with source_size (38% of its variance, group medians differ up to 1.24x)"
+ ]
+}

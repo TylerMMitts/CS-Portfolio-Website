@@ -9,7 +9,7 @@ import { ArchitectureChapter } from './ArchitectureChapter';
 import { AnswerKeyChapter } from './AccuracyChapter';
 import { GeneHeatmaps } from './GeneHeatmaps';
 import { MouseChapter } from './MouseChapter';
-import { WhichIsReal } from './WhichIsReal';
+import { SoftwareChapter } from './SoftwareChapter';
 import { MusicToggle } from './MusicToggle';
 
 // Credit line for the background track, shown in the footer once a track is added.
@@ -294,10 +294,8 @@ export function DnaStory({ onBack }: { onBack: () => void }) {
           <MouseChapter />
         </Ripple>
 
-        {/* 8 · Game */}
-        <Ripple>
-          <WhichIsReal />
-        </Ripple>
+        {/* 8 · The software: d2d sets up any dataset */}
+        <SoftwareChapter />
 
         {/* 9 · Close */}
         <section className="ch field-gold" aria-labelledby="d2d-close-h">

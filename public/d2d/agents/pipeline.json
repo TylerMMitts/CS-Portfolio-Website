@@ -1,0 +1,117 @@
+{
+ "dataset": "IMPC BCM mouse X-rays, raw download",
+ "stages": [
+  {
+   "stage": "intake",
+   "title": "Organize the dataset",
+   "does": "Finds the images, genotype file and tables; maps every image to its line; adds covariates; splits lines into train and test.",
+   "status": "done",
+   "decided_by": "rules",
+   "result": "8819 images from 8819 lines, 718 markers + 99 covariate columns (sex, date-of-experiment), 9 traits; 0 images unmatched"
+  },
+  {
+   "stage": "images",
+   "title": "Image preprocessing",
+   "does": "Surveys every image; removes legends; excludes inverted, duplicate and off-view images; corrects drift between imaging setups.",
+   "status": "done",
+   "decided_by": "claude-code",
+   "result": "8807 training images written, 12 excluded, 22 subjects larger than the canvas; scale normalised over 6 source_size groups"
+  },
+  {
+   "stage": "traits",
+   "title": "Segmentation and traits",
+   "does": "Chooses what to measure on every real and generated image.",
+   "status": "done",
+   "decided_by": "claude-code",
+   "result": "8 traits measured on 8807 images"
+  },
+  {
+   "stage": "genetics",
+   "title": "Genetic encoding",
+   "does": "Chooses how the genotype is encoded for the model.",
+   "status": "done",
+   "decided_by": "rules",
+   "result": "encoding qtl_only"
+  },
+  {
+   "stage": "training",
+   "title": "Training setup",
+   "does": "Sizes the model and writes the cluster jobs; never trains on the laptop.",
+   "status": "done",
+   "decided_by": "rules",
+   "result": "scripts for large written (slurm)"
+  },
+  {
+   "stage": "qc",
+   "title": "Quality control",
+   "does": "Watches the training curves for collapse, divergence and memorisation; picks the checkpoint.",
+   "status": "pending",
+   "decided_by": "",
+   "result": "to be redone"
+  },
+  {
+   "stage": "analysis",
+   "title": "Statistical analysis",
+   "does": "Generates images for held-out lines and scores them against the truth and genomic prediction.",
+   "status": "pending",
+   "decided_by": "",
+   "result": "to be redone"
+  }
+ ],
+ "setups": [
+  {
+   "image_width_px": 2048,
+   "images": 2790,
+   "median_mouse_size_px": 765.8,
+   "scale_factor": 0.989,
+   "raw": "caught/setup_2048_raw.webp",
+   "prepared": "caught/setup_2048_prepared.webp",
+   "has_legend_panel_share": 0.0
+  },
+  {
+   "image_width_px": 2324,
+   "images": 192,
+   "median_mouse_size_px": 679.0,
+   "scale_factor": 1.116,
+   "raw": "caught/setup_2324_raw.webp",
+   "prepared": "caught/setup_2324_prepared.webp",
+   "has_legend_panel_share": 0.99
+  },
+  {
+   "image_width_px": 2364,
+   "images": 4385,
+   "median_mouse_size_px": 757.4,
+   "scale_factor": 1.0,
+   "raw": "caught/setup_2364_raw.webp",
+   "prepared": "caught/setup_2364_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2500,
+   "images": 1102,
+   "median_mouse_size_px": 626.3,
+   "scale_factor": 1.209,
+   "raw": "caught/setup_2500_raw.webp",
+   "prepared": "caught/setup_2500_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2800,
+   "images": 20,
+   "median_mouse_size_px": 619.5,
+   "scale_factor": 1.222,
+   "raw": "caught/setup_2800_raw.webp",
+   "prepared": "caught/setup_2800_prepared.webp",
+   "has_legend_panel_share": 1.0
+  },
+  {
+   "image_width_px": 2948,
+   "images": 285,
+   "median_mouse_size_px": 630.7,
+   "scale_factor": 1.201,
+   "raw": "caught/setup_2948_raw.webp",
+   "prepared": "caught/setup_2948_prepared.webp",
+   "has_legend_panel_share": 1.0
+  }
+ ]
+}
