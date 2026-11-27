@@ -17,7 +17,7 @@ import { MusicToggle } from './MusicToggle';
 const MUSIC_CREDIT = '';
 
 const FONTS =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap';
 const PAGE_BG = '#14120F';
 
 const DENOISE = frameUrls('denoise');
