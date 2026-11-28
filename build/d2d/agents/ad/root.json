@@ -1,0 +1,145 @@
+{
+ "key": "root",
+ "label": "Root",
+ "real": false,
+ "name": "maize_roots",
+ "path": "D:\\MexMAGIC\\root_sections",
+ "found": "found 2,500 images · mema_43788.hmp.txt · root_traits.csv",
+ "files": 2500,
+ "upload": 2502,
+ "unit": "lines",
+ "stages": [
+  {
+   "key": "intake",
+   "title": "Organize the dataset",
+   "source": "rules",
+   "message": "2500 images from 2500 lines, 43788 markers, 6 traits; 0 images unmatched"
+  },
+  {
+   "key": "images",
+   "title": "Image preprocessing",
+   "source": "claude-code",
+   "message": "2469 training images written, 31 excluded; stain normalised over 4 imaging days"
+  },
+  {
+   "key": "traits",
+   "title": "Segmentation and traits",
+   "source": "claude-code",
+   "message": "6 traits measured on 2469 images"
+  },
+  {
+   "key": "genetics",
+   "title": "Genetic encoding",
+   "source": "rules",
+   "message": "encoding pca (168 components)"
+  },
+  {
+   "key": "training",
+   "title": "Training setup",
+   "source": "rules",
+   "message": "scripts for medium written (slurm)"
+  },
+  {
+   "key": "qc",
+   "title": "Quality control",
+   "source": "claude-code",
+   "message": "QC ok: 1 issue"
+  },
+  {
+   "key": "analysis",
+   "title": "Statistical analysis",
+   "source": "rules",
+   "message": "Mean r 0.81 over 6 traits on 198 validation lines (genomic prediction 0.87)."
+  }
+ ],
+ "finished_message": "all stages done: results are on the Results page",
+ "notes": {
+  "intake": "Rule-based guess: line ID from the image name (MEMA_<line>_<rep>), matches 100% of images against genetic/mema_43788.hmp.txt.",
+  "images": "Sections from two of the four imaging days are stained darker, so colour is normalised per day. 19 sections are out of focus and 9 roots are cracked across the cortex: excluded. 3 images are the same section photographed twice: one copy kept. Every root is centred and scaled to the same canvas.",
+  "traits": "Six anatomy measurements from a tissue segmentation: metaxylem number and diameter, stele diameter, cortex width, sclerenchyma and aerenchyma. Each outlines a real structure and is measured the same way on real and generated roots.",
+  "genetics": "43,788 markers on 2,500 lines is too many columns to read directly, so the one-hot markers are compressed to 168 PCA scores.",
+  "training": "medium gives about 4,100 parameters per image for this image variety; 300 diffusion and 80 LiteVAE epochs.",
+  "qc": "Both runs converged. The diffusion model uses the genotype about equally on held-out and training lines, so it isn't memorising. Use the best checkpoint, epoch 291."
+ },
+ "caught": [],
+ "sbatch": [
+  "#SBATCH --job-name=diffusion_maize_roots",
+  "#SBATCH --gres=gpu:1",
+  "#SBATCH --time=1-12:00:00",
+  "export WIDIV_DATASET=maize_roots",
+  "export WIDIV_NUM_EPOCHS=300",
+  "export WIDIV_SNP_ENCODING=pca",
+  "python -u -m d2d.launch_trainer maize_roots diffusion"
+ ],
+ "qc_issues": [
+  "Diffusion (medium) converged: validation loss is flat from about epoch 260 (best at epoch 291). Genotype gain 0.061 on held-out lines and 0.064 on training lines: no sign of memorisation."
+ ],
+ "results": {
+  "mean_r": 0.81,
+  "mean_gp": 0.87,
+  "lines": 198,
+  "images": 792,
+  "traits": [
+   {
+    "label": "Metaxylem number",
+    "r": 0.91,
+    "gp": 0.97
+   },
+   {
+    "label": "Metaxylem diameter",
+    "r": 0.89,
+    "gp": 0.51
+   },
+   {
+    "label": "Stele diameter",
+    "r": 0.87,
+    "gp": 0.95
+   },
+   {
+    "label": "Cortex width",
+    "r": 0.85,
+    "gp": 0.95
+   },
+   {
+    "label": "Sclerenchyma",
+    "r": 0.7,
+    "gp": 0.92
+   },
+   {
+    "label": "Aerenchyma",
+    "r": 0.65,
+    "gp": 0.91
+   }
+  ]
+ },
+ "copy": [
+  [
+   "Drop in a folder.",
+   "Images plus a genotype file. Here: 2,500 maize root cross-sections and 43,788 DNA markers."
+  ],
+  [
+   "It sorts out the files.",
+   "Code matches every section to its plant and reads the HapMap genotype file."
+  ],
+  [
+   "An agent cleans the images.",
+   "When the rules aren’t sure, an AI agent decides: blurred sections, cracked roots, stain that changed between days."
+  ],
+  [
+   "It picks what to measure.",
+   "Vessels, stele, cortex and air channels, and a compact way to read 43,788 markers."
+  ],
+  [
+   "It writes the training jobs.",
+   "It sizes the model and writes the job scripts for the university cluster."
+  ],
+  [
+   "It checks the training.",
+   "The agent read the loss curves, confirmed the model wasn’t memorising and picked the checkpoint."
+  ],
+  [
+   "Results, ready to read.",
+   "Every trait scored on 198 unseen lines against genomic prediction. From a folder to this, no code written."
+  ]
+ ]
+}

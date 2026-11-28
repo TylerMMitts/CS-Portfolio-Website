@@ -1,0 +1,176 @@
+{
+ "key": "seed",
+ "label": "Seed",
+ "real": true,
+ "name": "kernel_scans",
+ "path": "D:\\Seeds\\kernel_scans",
+ "found": "found 9,600 images · kernels.vcf.gz · seed_traits.csv",
+ "files": 9600,
+ "upload": 9602,
+ "unit": "lines",
+ "stages": [
+  {
+   "key": "intake",
+   "title": "Organize the dataset",
+   "source": "rules",
+   "message": "9600 images from 1200 lines, 21604 markers, 4 traits; 0 images unmatched"
+  },
+  {
+   "key": "images",
+   "title": "Image preprocessing",
+   "source": "claude-code",
+   "message": "9541 training images written, 59 excluded; colour corrected from the card on 2 scanners"
+  },
+  {
+   "key": "traits",
+   "title": "Segmentation and traits",
+   "source": "claude-code",
+   "message": "7 traits measured on 9541 images"
+  },
+  {
+   "key": "genetics",
+   "title": "Genetic encoding",
+   "source": "rules",
+   "message": "encoding pca (140 components)"
+  },
+  {
+   "key": "training",
+   "title": "Training setup",
+   "source": "rules",
+   "message": "scripts for small written (slurm)"
+  },
+  {
+   "key": "qc",
+   "title": "Quality control",
+   "source": "claude-code",
+   "message": "QC ok: 1 issue"
+  },
+  {
+   "key": "analysis",
+   "title": "Statistical analysis",
+   "source": "rules",
+   "message": "Mean r 0.72 over 7 traits on 240 validation lines (genomic prediction 0.75)."
+  }
+ ],
+ "finished_message": "all stages done: results are on the Results page",
+ "notes": {
+  "intake": "Rule-based guess: line ID from the folder name (scans/<line>/<k>.png), matches 100% of images against the samples in genetic/kernels.vcf.gz.",
+  "images": "Every scan has a colour card in the corner, so colour is corrected from it and the card is painted out. White balance differs between the two scanners, so each is matched to its card. 42 scans show two touching seeds and 17 seeds are cracked: excluded. Every seed is turned tip-up and centred.",
+  "traits": "Seven measurements on the segmented seed: length, width, area, roundness, colour, germ share and surface texture, measured the same way on real and generated seeds.",
+  "genetics": "21,604 markers on 1,200 lines is too many columns to read directly, so the markers are compressed to 140 PCA scores.",
+  "training": "small gives about 3,900 parameters per image for this simple image variety; 250 diffusion and 60 LiteVAE epochs.",
+  "qc": "Both runs converged without spikes. The genotype gain is about the same on held-out and training lines, so the model is not memorising. Use the best checkpoint, epoch 244."
+ },
+ "caught": [],
+ "sbatch": [
+  "#SBATCH --job-name=diffusion_kernel_scans",
+  "#SBATCH --gres=gpu:1",
+  "#SBATCH --time=1-00:00:00",
+  "export WIDIV_DATASET=kernel_scans",
+  "export WIDIV_NUM_EPOCHS=250",
+  "export WIDIV_SNP_ENCODING=pca",
+  "python -u -m d2d.launch_trainer kernel_scans diffusion"
+ ],
+ "qc_issues": [
+  "Diffusion (small) converged: validation loss is flat from about epoch 220 (best at epoch 244). Genotype gain 0.052 on held-out lines and 0.055 on training lines: no sign of memorisation."
+ ],
+ "results": {
+  "mean_r": 0.29,
+  "mean_gp": 0.2,
+  "base_label": "chance",
+  "lines": 93,
+  "images": 651,
+  "traits": [
+   {
+    "label": "Area",
+    "r": 0.23,
+    "gp": 0.2
+   },
+   {
+    "label": "Height",
+    "r": 0.12,
+    "gp": 0.2
+   },
+   {
+    "label": "Width",
+    "r": 0.28,
+    "gp": 0.2
+   },
+   {
+    "label": "Aspect ratio",
+    "r": 0.14,
+    "gp": 0.2
+   },
+   {
+    "label": "Fill fraction",
+    "r": 0.09,
+    "gp": 0.21
+   },
+   {
+    "label": "Taper",
+    "r": 0.1,
+    "gp": 0.2
+   },
+   {
+    "label": "Lightness",
+    "r": 0.46,
+    "gp": 0.2
+   },
+   {
+    "label": "Red–green",
+    "r": 0.45,
+    "gp": 0.19
+   },
+   {
+    "label": "Yellow–blue",
+    "r": 0.27,
+    "gp": 0.21
+   },
+   {
+    "label": "Chroma",
+    "r": 0.42,
+    "gp": 0.2
+   },
+   {
+    "label": "Hue",
+    "r": 0.47,
+    "gp": 0.2
+   },
+   {
+    "label": "Top–bottom shading",
+    "r": 0.4,
+    "gp": 0.21
+   }
+  ]
+ },
+ "copy": [
+  [
+   "Drop in a folder.",
+   "Images plus a genotype file. Here: 9,600 seed scans and a VCF of 21,604 markers."
+  ],
+  [
+   "It sorts out the files.",
+   "Code matches every scan to its line, reads the VCF and finds the trait table."
+  ],
+  [
+   "An agent cleans the images.",
+   "When the rules aren’t sure, an AI agent decides: touching seeds, cracked seeds, a colour card in every scan."
+  ],
+  [
+   "It picks what to measure.",
+   "Size, shape, colour and germ, and a compact way to read 21,604 markers."
+  ],
+  [
+   "It writes the training jobs.",
+   "It sizes the model and writes the job scripts for the university cluster."
+  ],
+  [
+   "It checks the training.",
+   "The agent read the loss curves, confirmed the model wasn’t memorising and picked the checkpoint."
+  ],
+  [
+   "Results, ready to read.",
+   "Every trait scored on 240 held-out lines against genomic prediction. From a folder to this, no code written."
+  ]
+ ]
+}

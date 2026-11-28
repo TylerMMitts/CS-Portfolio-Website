@@ -13,12 +13,15 @@ import { projects, getProjectBySlug } from './data/projects';
 
 // The DNA to Display story is large and only needed on its own page
 const DnaStory = lazy(() => import('./components/dna/DnaStory').then((m) => ({ default: m.DnaStory })));
+const D2dPage = lazy(() => import('./components/dna/D2dPage').then((m) => ({ default: m.D2dPage })));
 
-type View = 'portfolio' | 'projects' | 'project' | 'story';
+type View = 'portfolio' | 'projects' | 'project' | 'story' | 'd2d';
 
 // Unlisted preview of the new DNA to Display scroll story, for testing before it replaces
 // /dna-to-display (the poster QR code's URL). To go live, route the dna-to-display slug here.
 const STORY_PREVIEW_SLUG = 'dna-story-preview';
+// The animated advert for the d2d software (root / seed / mouse runs)
+const D2D_SLUG = 'd2d';
 const DEFAULT_TITLE = 'Tyler Mitts Portfolio';
 
 // Map a URL path to a view: "/" -> portfolio, "/projects" -> all projects,
@@ -28,6 +31,7 @@ function routeFromPath(pathname: string): { view: View; projectId: number | null
   if (slug === '') return { view: 'portfolio', projectId: null };
   if (slug.toLowerCase() === 'projects') return { view: 'projects', projectId: null };
   if (slug.toLowerCase() === STORY_PREVIEW_SLUG) return { view: 'story', projectId: null };
+  if (slug.toLowerCase() === D2D_SLUG) return { view: 'd2d', projectId: null };
   const project = getProjectBySlug(slug);
   if (project) return { view: 'project', projectId: project.id };
   return { view: 'portfolio', projectId: null };
@@ -36,8 +40,8 @@ function routeFromPath(pathname: string): { view: View; projectId: number | null
 export default function App() {
   const initialRoute = routeFromPath(window.location.pathname);
   const [activeSection, setActiveSection] = useState('home');
-  // The DNA story page doesn't use the pixel font, so skip the loading screen
-  const [isLoaded, setIsLoaded] = useState(initialRoute.view === 'story');
+  // The DNA story and d2d pages don't use the pixel font, so skip the loading screen
+  const [isLoaded, setIsLoaded] = useState(initialRoute.view === 'story' || initialRoute.view === 'd2d');
   const [currentView, setCurrentView] = useState<View>(initialRoute.view);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialRoute.projectId);
 
@@ -73,6 +77,7 @@ export default function App() {
       currentView === 'project' && project ? `${project.title} | Tyler Mitts`
       : currentView === 'projects' ? 'Projects | Tyler Mitts'
       : currentView === 'story' ? 'DNA to Display | Tyler Mitts'
+      : currentView === 'd2d' ? 'd2d: DNA to Display software | Tyler Mitts'
       : DEFAULT_TITLE;
   }, [currentView, selectedProjectId]);
 
@@ -174,6 +179,14 @@ export default function App() {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0E0D0B' }} />}>
         <DnaStory onBack={handleBackFromAllProjects} />
+      </Suspense>
+    );
+  }
+
+  if (currentView === 'd2d') {
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0b0b0a' }} />}>
+        <D2dPage onBack={handleBackFromAllProjects} />
       </Suspense>
     );
   }

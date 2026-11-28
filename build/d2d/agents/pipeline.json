@@ -36,7 +36,7 @@
   {
    "stage": "training",
    "title": "Training setup",
-   "does": "Sizes the model and writes the cluster jobs; never trains on the laptop.",
+   "does": "Sizes the model and checks the computer against what training needs: trains here, or exports a bundle with directions for a workstation or cluster and imports the results.",
    "status": "done",
    "decided_by": "rules",
    "result": "scripts for large written (slurm)"
@@ -45,17 +45,17 @@
    "stage": "qc",
    "title": "Quality control",
    "does": "Watches the training curves for collapse, divergence and memorisation; picks the checkpoint.",
-   "status": "pending",
-   "decided_by": "",
-   "result": "to be redone"
+   "status": "done",
+   "decided_by": "claude-code",
+   "result": "QC ok: 2 issues"
   },
   {
    "stage": "analysis",
    "title": "Statistical analysis",
    "does": "Generates images for held-out lines and scores them against the truth and genomic prediction.",
-   "status": "pending",
-   "decided_by": "",
-   "result": "to be redone"
+   "status": "done",
+   "decided_by": "rules",
+   "result": "Mean r 0.69 over 8 traits on 742 validation lines (genomic prediction 0.73)."
   }
  ],
  "setups": [

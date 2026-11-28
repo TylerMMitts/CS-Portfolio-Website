@@ -1,0 +1,276 @@
+{
+ "key": "mouse",
+ "label": "Mouse",
+ "real": true,
+ "name": "mouse_xrays",
+ "path": "D:\\Mice\\xray_download",
+ "found": "found 8,819 images · knockouts_012.csv.gz · traits.csv",
+ "files": 8819,
+ "upload": 8822,
+ "unit": "mice",
+ "stages": [
+  {
+   "key": "intake",
+   "title": "Organize the dataset",
+   "source": "rules",
+   "message": "8819 images from 8819 lines, 718 markers + 99 covariate columns (sex, date-of-experiment), 9 traits; 0 images unmatched"
+  },
+  {
+   "key": "images",
+   "title": "Image preprocessing",
+   "source": "claude-code",
+   "message": "8807 training images written, 12 excluded, 22 subjects larger than the canvas; scale normalised over 6 source_size groups"
+  },
+  {
+   "key": "traits",
+   "title": "Segmentation and traits",
+   "source": "claude-code",
+   "message": "8 traits measured on 8807 images"
+  },
+  {
+   "key": "genetics",
+   "title": "Genetic encoding",
+   "source": "rules",
+   "message": "encoding qtl_only"
+  },
+  {
+   "key": "training",
+   "title": "Training setup",
+   "source": "rules",
+   "message": "scripts for large written (slurm)"
+  },
+  {
+   "key": "qc",
+   "title": "Quality control",
+   "source": "claude-code",
+   "message": "QC ok: 2 issues"
+  },
+  {
+   "key": "analysis",
+   "title": "Statistical analysis",
+   "source": "rules",
+   "message": "Mean r 0.69 over 8 traits on 742 validation lines (genomic prediction 0.73)."
+  }
+ ],
+ "finished_message": "all stages done: results are on the Results page",
+ "notes": {
+  "intake": "Rule-based guess: line ID from the image name (table, matches 100% of images against genetic/knockouts_012.csv.gz::rows).",
+  "images": "Subject size shifts with the source image dimensions (about 1.24x between imaging setups): a magnification change, so each image-size group is scaled to the largest group. Brightness and contrast drift with imaging month and setup, so each image is stretched between its own subject percentiles. The grey-scale legend on 68% of images is painted over. Excluded 12: 7 inverted X-rays and 1 sideways view (subject darker than its background), and 2 pairs of identical pictures filed under different mice. The 374 grey-background images flagged for review are kept; normalisation evens them out.",
+  "traits": "Eight body and X-ray measurements that outline real structure. None tracks an imported IMPC trait: the high correlations with the caudal vertebra count rest on the few mice that have it, so every trait is scored against the same measurement on the real X-rays. Vertebra and rib counts and tibia length need a skeleton segmenter, which this recipe does not have.",
+  "genetics": "Each line differs at only a few columns (or there are few markers), so every column is read directly instead of through a PCA.",
+  "training": "large gives 4395 parameters per image against a target of 4200 for this image variety (42 PCs for 90%); 210 diffusion and 80 LiteVAE epochs match the earlier runs' steps.",
+  "qc": "Both runs finished cleanly. The LiteVAE's loss spikes were caught by the spike guard and it recovered within two epochs each time; its best checkpoint (epoch 74, validation loss 0.0015) is well after the last one. The diffusion model converged, uses the genotype about equally on held-out and training mice (gain 0.047 vs 0.050, so no memorisation), and its epoch-200 previews look like real X-rays and vary between seeds. Use the best diffusion checkpoint (epoch 207) for the analysis."
+ },
+ "caught": [
+  {
+   "src": "caught/inverted_1.webp",
+   "label": "inverted · excluded",
+   "bad": true
+  },
+  {
+   "src": "caught/inverted_3.webp",
+   "label": "inverted · excluded",
+   "bad": true
+  },
+  {
+   "src": "caught/inverted_5.webp",
+   "label": "inverted · excluded",
+   "bad": true
+  },
+  {
+   "src": "caught/sideways.webp",
+   "label": "sideways · excluded",
+   "bad": true
+  },
+  {
+   "src": "caught/duplicate_1_1.webp",
+   "label": "duplicate · excluded",
+   "bad": true
+  },
+  {
+   "src": "caught/duplicate_1_2.webp",
+   "label": "duplicate · excluded",
+   "bad": true
+  }
+ ],
+ "sbatch": [
+  "#SBATCH --job-name=diffusion_mouse_xrays",
+  "#SBATCH --gres=gpu:1",
+  "#SBATCH --time=2-00:00:00",
+  "export WIDIV_DATASET=mouse_xrays",
+  "export WIDIV_NUM_EPOCHS=210",
+  "export WIDIV_SNP_ENCODING=qtl_only",
+  "python -u -m d2d.launch_trainer mouse_xrays diffusion"
+ ],
+ "qc_issues": [
+  "Diffusion (large) ran all 210 epochs; validation loss is flat at 0.0525 from about epoch 200 (best 0.05253 at epoch 207). The genotype gain is 0.047 on held-out mice and 0.050 on training mice, so the model uses the genotype about equally on unseen mice: no sign of memorisation.",
+  "LiteVAE training loss jumped at epochs 9, 23, 31, 40 and 59, and the spike guard skipped 142-360 steps in each. Only epoch 9 disturbed the weights (validation loss 28.5 for one epoch); validation was back to 0.0039 by epoch 11, and every later spike left validation loss unchanged. The best checkpoint, epoch 74 (validation 0.00149), comes long after the last spike."
+ ],
+ "results": {
+  "mean_r": 0.69,
+  "mean_gp": 0.73,
+  "lines": 742,
+  "images": 2968,
+  "traits": [
+   {
+    "label": "Body area",
+    "r": 0.714,
+    "gp": 0.698
+   },
+   {
+    "label": "Body width",
+    "r": 0.699,
+    "gp": 0.689
+   },
+   {
+    "label": "Body length (with tail)",
+    "r": 0.503,
+    "gp": 0.524
+   },
+   {
+    "label": "X-ray brightness",
+    "r": 0.935,
+    "gp": 0.939
+   },
+   {
+    "label": "Dense torso share",
+    "r": 0.798,
+    "gp": 0.804
+   },
+   {
+    "label": "Large bone share",
+    "r": 0.768,
+    "gp": 0.788
+   },
+   {
+    "label": "Small bone size",
+    "r": 0.65,
+    "gp": 0.744
+   },
+   {
+    "label": "Texture",
+    "r": 0.422,
+    "gp": 0.63
+   }
+  ]
+ },
+ "pair": {
+  "real": "end_to_end/pair_1_real.webp",
+  "generated": "end_to_end/pair_1_generated.webp",
+  "invert": true
+ },
+ "copy": [
+  [
+   "Drop in a folder.",
+   "Images plus a genotype file. Here: 8,819 mouse X-rays as downloaded, nothing cleaned."
+  ],
+  [
+   "It sorts out the files.",
+   "Code matches every image to its mouse and finds the genotypes, the sex and the imaging dates."
+  ],
+  [
+   "An agent cleans the images.",
+   "When the rules aren’t sure, an AI agent decides. It caught legends, a zoom change, inverted X-rays and duplicates."
+  ],
+  [
+   "It picks what to measure.",
+   "And how to read the DNA: eight body measurements, every knockout column read directly."
+  ],
+  [
+   "It writes the training jobs.",
+   "It sizes the model and writes the job scripts. The models trained on the university cluster."
+  ],
+  [
+   "It checks the training.",
+   "The agent read the loss curves, explained the spikes, ruled out memorisation and picked the checkpoint."
+  ],
+  [
+   "Results, ready to read.",
+   "Every trait scored on 742 held-out mice against genomic prediction. From a folder to this, no code written."
+  ]
+ ],
+ "media": {
+  "intake": {
+   "title": "one X-ray from each of the 6 imaging setups",
+   "items": [
+    {
+     "src": "caught/setup_2048_raw.webp"
+    },
+    {
+     "src": "caught/setup_2324_raw.webp"
+    },
+    {
+     "src": "caught/setup_2364_raw.webp"
+    },
+    {
+     "src": "caught/setup_2500_raw.webp"
+    },
+    {
+     "src": "caught/setup_2800_raw.webp"
+    },
+    {
+     "src": "caught/setup_2948_raw.webp"
+    }
+   ]
+  },
+  "legend": {
+   "raw": "caught/sees_raw.webp",
+   "mask": "caught/sees_mask.webp"
+  },
+  "traits": {
+   "legend": [
+    [
+     "#f1b82d",
+     "body outline"
+    ],
+    [
+     "#6b93f0",
+     "dense torso"
+    ],
+    [
+     "#ef6b60",
+     "bones"
+    ]
+   ],
+   "items": [
+    {
+     "src": "video/seg_1.webp"
+    },
+    {
+     "src": "video/seg_2.webp"
+    },
+    {
+     "src": "video/seg_3.webp"
+    }
+   ]
+  },
+  "qc": {
+   "title": "the model’s own previews at epoch 200",
+   "items": [
+    {
+     "src": "video/preview_1.webp"
+    },
+    {
+     "src": "video/preview_2.webp"
+    },
+    {
+     "src": "video/preview_3.webp"
+    }
+   ]
+  },
+  "pairs": [
+   {
+    "real": "../mouse/pairs_d2d/1_real.webp",
+    "generated": "../mouse/pairs_d2d/1_generated.webp"
+   },
+   {
+    "real": "../mouse/pairs_d2d/2_real.webp",
+    "generated": "../mouse/pairs_d2d/2_generated.webp"
+   },
+   {
+    "real": "../mouse/pairs_d2d/3_real.webp",
+    "generated": "../mouse/pairs_d2d/3_generated.webp"
+   }
+  ]
+ }
+}
