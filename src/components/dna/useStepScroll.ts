@@ -24,6 +24,13 @@ let raf = 0;
 let holdY = -1; // while holding, the page is kept at this scroll position
 let holdUntil = 0; // performance.now() before which the page is held
 let wheelQuietAt = 0; // wheel input before this is swallowed (trackpad inertia)
+let wheelAbs = 0; // size of the last wheel event, to tell a fresh swipe from decaying inertia
+let wheelT = 0; // time of the last wheel event
+let wheelPeak = 0; // largest event of the current swipe
+let pending: 0 | 1 | -1 = 0; // one step asked for near the end of a glide, run when it lands
+let glideEnd = 0; // when the current glide lands
+let glideLen = 0;
+let landedAt = 0; // when the last glide landed
 let touchDown = false;
 let mouseDown = false; // e.g. dragging the scrollbar
 const onMouseDown = () => (mouseDown = true);
@@ -78,6 +85,8 @@ const glide = (to: number, ms: number, ease: (t: number) => number) => {
   cancelAnimationFrame(raf);
   const from = window.scrollY;
   const t0 = performance.now();
+  glideEnd = t0 + ms;
+  glideLen = ms;
   animating = true;
   lock();
   const tick = (now: number) => {
@@ -90,6 +99,12 @@ const glide = (to: number, ms: number, ease: (t: number) => number) => {
       return;
     }
     animating = false;
+    landedAt = performance.now();
+    if (pending) {
+      const d = pending;
+      pending = 0;
+      if (step(d)) return;
+    }
     holdAt(to, 250);
   };
   raf = requestAnimationFrame(tick);
@@ -107,16 +122,40 @@ const step = (d: 1 | -1): boolean => {
   return true;
 };
 
+// Trackpads keep sending shrinking wheel events (inertia) for a second or more after a swipe.
+// Those are swallowed, but a fresh swipe shows up as a jump in size or a gap in time, and counts
+// straight away: as the next step, or queued if a glide is still running.
 const onWheel = (e: WheelEvent) => {
-  if (e.ctrlKey || Math.abs(e.deltaY) < 1) return;
+  if (e.ctrlKey) return;
+  const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+  const abs = Math.abs(dy);
+  if (abs < 1) return;
   const now = performance.now();
-  if (animating || now < wheelQuietAt || now < holdUntil) {
-    wheelQuietAt = now + 220;
+  // a new swipe: after a pause, or a clear jump in size once the last one had started fading
+  // (a swipe's own ramp-up, 6 → 18 → 40, doesn't count)
+  // (thresholds sit between "every gesture until the momentum dies is swallowed" and "any
+  // flick counts": a new swipe has to be a clear restart, not a wobble in the momentum)
+  const fresh = now - wheelT > 220 || (abs > 10 && abs > wheelAbs * 2 && wheelAbs < wheelPeak * 0.45);
+  wheelPeak = fresh ? abs : Math.max(wheelPeak, abs);
+  wheelAbs = abs;
+  wheelT = now;
+  const d: 1 | -1 = dy > 0 ? 1 : -1;
+  if (animating) {
+    // only queue a swipe made in the last third of a glide, so a flick at the start of a step
+    // doesn't also take the next one
+    if (fresh && now > glideEnd - glideLen / 3 && sceneAt(window.scrollY)) pending = d;
     e.preventDefault();
     return;
   }
-  if (step(e.deltaY > 0 ? 1 : -1)) {
-    wheelQuietAt = now + 220;
+  if ((now < wheelQuietAt || now < holdUntil) && (!fresh || now - landedAt < 200)) {
+    wheelQuietAt = now + 160;
+    e.preventDefault();
+    return;
+  }
+  if (step(d)) {
+    wheelQuietAt = now + 160;
+    e.preventDefault();
+  } else if (now < wheelQuietAt || now < holdUntil) {
     e.preventDefault();
   }
 };
@@ -228,6 +267,7 @@ function detach() {
   cancelAnimationFrame(raf);
   window.clearTimeout(unlockTimer);
   animating = false;
+  pending = 0;
   document.documentElement.style.overflow = '';
 }
 

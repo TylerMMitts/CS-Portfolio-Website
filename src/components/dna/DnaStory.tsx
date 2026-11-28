@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import './dna.css';
 import { ASSET, frameUrls } from './hooks';
 import { ScrubCanvas } from './ScrubCanvas';
@@ -11,51 +11,15 @@ import { GeneHeatmaps } from './GeneHeatmaps';
 import { MouseChapter } from './MouseChapter';
 import { SoftwareChapter } from './SoftwareChapter';
 import { MusicToggle } from './MusicToggle';
+import { useFonts, usePageShell } from './shell';
 
 // Credit line for the background track, shown in the footer once a track is added.
 // Fill in when a licensed track (CC0 / royalty-free / CC-BY) has been chosen.
 const MUSIC_CREDIT = '';
 
-const FONTS =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap';
 const PAGE_BG = '#14120F';
 
 const DENOISE = frameUrls('denoise');
-
-function useFonts() {
-  useEffect(() => {
-    if (document.getElementById('d2d-fonts')) return;
-    const pre = document.createElement('link');
-    pre.rel = 'preconnect';
-    pre.href = 'https://fonts.gstatic.com';
-    pre.crossOrigin = '';
-    const link = document.createElement('link');
-    link.id = 'd2d-fonts';
-    link.rel = 'stylesheet';
-    link.href = FONTS;
-    document.head.append(pre, link);
-  }, []);
-}
-
-// The page lives outside the portfolio's theme while mounted:
-// - paint the overscroll area ink
-// - the portfolio's global CSS pins html/body to 100% height with their own scrollbars,
-//   which makes <body> the scroller; switch back to normal window scrolling so the
-//   scroll-driven scenes, sticky pins and iOS Safari's toolbar behave.
-function usePageShell(bg: string) {
-  useEffect(() => {
-    const els = [document.documentElement, document.body];
-    const saved = els.map((el) => el.getAttribute('style'));
-    els.forEach((el) => {
-      el.style.background = bg;
-      el.style.height = 'auto';
-      el.style.overflow = 'visible';
-    });
-    return () => {
-      els.forEach((el, i) => (saved[i] === null ? el.removeAttribute('style') : el.setAttribute('style', saved[i]!)));
-    };
-  }, [bg]);
-}
 
 export function DnaStory({ onBack }: { onBack: () => void }) {
   useFonts();
@@ -387,18 +351,64 @@ function Arrow() {
 
 // One gold zig-zag behind the cut-out root: left, right, left, right, left, from the top of
 // the root to the bottom, with uneven reach and spacing so it isn't symmetrical. It draws itself
-// in from top to bottom as the root forms (driven by --k from the scroll position).
+// in from top to bottom as the root forms (driven by --k from the scroll position). The corners
+// always sit just past the screen edges, on phones and wide screens alike, so the points are
+// never seen.
+const ZIG = [
+  [4, 4],
+  [96, 22],
+  [2, 50],
+  [94, 74],
+  [6, 96],
+];
 const ColdBackdrop = forwardRef<HTMLDivElement>(function ColdBackdrop(_, ref) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const on = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    on();
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  const { w, h } = size;
+  if (!w) return <div ref={ref} className="cold-backdrop" aria-hidden />;
+  // the root's box, as laid out by the cold open (see .cold-backdrop in dna.css)
+  const S = w / h >= 10 / 13 ? 0.66 * Math.min(w, h) : Math.min(0.92 * w, 0.56 * h);
+  const W = S * 1.75;
+  const top = h / 2 - 0.08 * h - W / 2;
+  const left = w / 2 - W / 2;
+  const at = (v: number, o: number) => o + ((v + 20) / 140) * W;
+  const sw = (6 / 140) * W;
+  const ys = ZIG.map(([, y]) => at(y, top));
+  // Reach at least as far as on a phone, and far enough that the inside of each bend (which
+  // sits further in the sharper the bend, i.e. the wider the screen) is off-screen too.
+  let xl = Math.min(at(4, left), -0.04 * w);
+  let xr = Math.max(at(96, left), 1.04 * w);
+  for (let it = 0; it < 6; it++) {
+    const xs = ZIG.map(([x]) => xl + ((x - 2) / 94) * (xr - xl));
+    let needL = 0;
+    let needR = 0;
+    for (let j = 1; j < ZIG.length - 1; j++) {
+      const a1 = Math.atan2(Math.abs(ys[j] - ys[j - 1]), Math.abs(xs[j] - xs[j - 1]));
+      const a2 = Math.atan2(Math.abs(ys[j + 1] - ys[j]), Math.abs(xs[j + 1] - xs[j]));
+      const inner = xs[j] < w / 2 ? xs[j] + sw / 2 / Math.sin((a1 + a2) / 2) : xs[j] - sw / 2 / Math.sin((a1 + a2) / 2);
+      if (xs[j] < w / 2) needL = Math.max(needL, inner + 0.01 * w);
+      else needR = Math.max(needR, w * 1.01 - inner);
+    }
+    if (needL <= 0.5 && needR <= 0.5) break;
+    xl -= Math.max(0, needL);
+    xr += Math.max(0, needR);
+  }
+  const pts = ZIG.map(([x], i) => `${xl + ((x - 2) / 94) * (xr - xl)},${ys[i]}`).join(' ');
   return (
     <div ref={ref} className="cold-backdrop" aria-hidden>
-      <svg viewBox="-20 -20 140 140" width="100%" height="100%">
+      <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="100%" preserveAspectRatio="none">
         <polyline
           className="cb-zig"
-          points="4,4 96,22 2,50 94,74 6,96"
+          points={pts}
           pathLength={1}
           fill="none"
           stroke="#F1B82D"
-          strokeWidth="6"
+          strokeWidth={sw}
           strokeLinejoin="miter"
           strokeLinecap="square"
           strokeMiterlimit={12}

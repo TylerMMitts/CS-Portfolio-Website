@@ -7,8 +7,13 @@ interface MouseData {
   n_mice: number;
   n_knockout_genes: number;
   genotype_columns: number;
+  n_images_in: number;
+  n_excluded: number;
   validation_mice: number;
-  hero_mouse: string;
+  mean_r_generated: number;
+  mean_r_genomic_prediction: number;
+  r_min: number;
+  r_max: number;
   pairs: { mouse: string; sex: string; genotype: string; real: string; generated: string }[];
   traits: {
     trait: string;
@@ -22,6 +27,7 @@ interface MouseData {
 }
 
 const FRAMES = frameUrls('mouse/denoise');
+const fx = (v: number | undefined, d: number) => (v ?? d).toFixed(2);
 const INVERT = 'invert(1)'; // radiograph-film look; applied identically to real and generated images
 
 export function MouseChapter() {
@@ -45,6 +51,7 @@ export function MouseChapter() {
   );
   const labelOf = (key: string) => data?.traits.find((t) => t.trait === key)?.label ?? key;
   const pr = data?.pairs[pair];
+  const area = data?.breakdown.find((b) => b.trait === 'area_px');
 
   return (
     <section ref={ref} className="field-blue" id="d2d-mouse" aria-labelledby="d2d-mouse-h">
@@ -65,7 +72,7 @@ export function MouseChapter() {
         heightVh={340}
         endFraction={0.78}
         invert
-        label="Noise turning into a mouse X-ray generated for held-out mouse M01151, shown film-negative"
+        label="Noise turning into a mouse X-ray generated for a held-out mouse, shown film-negative"
         onProgress={(p) => {
           if (endRef.current) endRef.current.style.opacity = String(Math.max(0, (p - 0.8) / 0.2));
         }}
@@ -75,7 +82,7 @@ export function MouseChapter() {
           className="mono"
           style={{ position: 'absolute', left: 20, right: 20, bottom: 'max(24px, 5vh)', margin: 0, textAlign: 'center', opacity: 0, color: 'var(--paper)' }}
         >
-          Mouse M01151, a held-out Fez2 knockout female, drawn from its genotype alone.
+          A held-out mouse, drawn from its genotype alone.
         </p>
       </ScrubCanvas>
 
@@ -96,10 +103,10 @@ export function MouseChapter() {
           {pr && (
             <figure style={{ margin: 0, maxWidth: 520 }}>
               <div style={{ position: 'relative', aspectRatio: '1', background: '#000', overflow: 'hidden' }}>
-                <img src={`${ASSET}mouse/${pr.real}`} alt={`Real X-ray of mouse ${pr.mouse}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', filter: INVERT }} />
+                <img src={`${ASSET}mouse/${pr.real}`} alt={`Real X-ray of a held-out ${pr.genotype} mouse`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', filter: INVERT }} />
                 <img
                   src={`${ASSET}mouse/${pr.generated}`}
-                  alt={`Generated X-ray of mouse ${pr.mouse}`}
+                  alt={`Generated X-ray of the same ${pr.genotype} mouse`}
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', filter: INVERT, clipPath: `inset(0 0 0 ${split}%)` }}
                 />
                 <div aria-hidden style={{ position: 'absolute', top: 0, bottom: 0, left: `${split}%`, width: 2, background: 'var(--gold)' }} />
@@ -124,7 +131,10 @@ export function MouseChapter() {
             <div>
               <h3>The data, briefly</h3>
               <ul style={{ paddingLeft: 20 }}>
-                <li>8,798 mice from the International Mouse Phenotyping Consortium (IMPC), one X-ray each.</li>
+                <li>
+                  {(data?.n_images_in ?? 8819).toLocaleString()} mouse X-rays from the International Mouse Phenotyping
+                  Consortium (IMPC), as downloaded. {(data?.n_mice ?? 8807).toLocaleString()} were kept, one per mouse.
+                </li>
                 <li>
                   Instead of 43,788 inherited DNA markers, each mouse's genotype is which of 718 genes was knocked out, plus
                   its sex and imaging month.
@@ -133,8 +143,9 @@ export function MouseChapter() {
               </ul>
               <h3 style={{ marginTop: 32 }}>Accuracy</h3>
               <p>
-                Eight traits measured on the images, scored on 728 held-out mice. Generated images reach r 0.44 to 0.91 (mean
-                0.74); the genomic-prediction baseline averages 0.77.
+                Eight traits measured on the images, scored on {data?.validation_mice ?? 741} held-out mice. Generated images
+                reach r {fx(data?.r_min, 0.42)} to {fx(data?.r_max, 0.94)} (mean {fx(data?.mean_r_generated, 0.69)}); the
+                genomic-prediction baseline averages {fx(data?.mean_r_genomic_prediction, 0.73)}.
               </p>
             </div>
             <div>{traits.length > 0 && <Scatter traits={traits} baseName="genomic prediction" idLabel="mouse" xLabel={() => 'true value (standardised)'} />}</div>
@@ -146,7 +157,12 @@ export function MouseChapter() {
               Most of what can be predicted about these mice comes from their sex and when they were imaged, not from the
               knocked-out gene.
             </p>
-            <p>For body area: sex and imaging month alone give r 0.72; all columns give 0.76.</p>
+            {area && (
+              <p>
+                For body area: sex and imaging month alone give r {area.sex_and_month.toFixed(2)}; all columns give{' '}
+                {area.all_columns.toFixed(2)}.
+              </p>
+            )}
             <div className="mono" style={{ display: 'flex', gap: 18, flexWrap: 'wrap', margin: '8px 0 16px' }} aria-hidden>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 22, height: 10, background: 'var(--paper)', opacity: 0.6 }} /> sex + imaging month

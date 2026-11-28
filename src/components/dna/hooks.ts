@@ -77,20 +77,30 @@ export function useScrollProgress(ref: RefObject<HTMLElement>, cb: (p: number) =
   }, [ref]);
 }
 
+const jsonCache = new Map<string, unknown>();
+
+// Fetches JSON once enabled; refetches when the url changes (cached per url)
 export function useJson<T>(url: string, enabled: boolean): T | null {
-  const [data, setData] = useState<T | null>(null);
+  const [got, setGot] = useState<{ url: string; data: T } | null>(() =>
+    jsonCache.has(url) ? { url, data: jsonCache.get(url) as T } : null,
+  );
+  const have = got?.url === url;
   useEffect(() => {
-    if (!enabled || data) return;
+    if (!enabled || have) return;
+    if (jsonCache.has(url)) return setGot({ url, data: jsonCache.get(url) as T });
     let alive = true;
     fetch(url)
       .then((r) => r.json())
-      .then((d) => alive && setData(d))
+      .then((d) => {
+        jsonCache.set(url, d);
+        if (alive) setGot({ url, data: d });
+      })
       .catch(() => {});
     return () => {
       alive = false;
     };
-  }, [url, enabled, data]);
-  return data;
+  }, [url, enabled, have]);
+  return have ? got!.data : null;
 }
 
 // Loads a list of images; returns the HTMLImageElements (entries are null until loaded)
@@ -133,4 +143,41 @@ if (typeof window !== 'undefined') {
     },
     { passive: true },
   );
+}
+
+// Runs 0 → 1 over `ms` once the element is at least `threshold` visible (once only).
+// Returns 1 straight away with reduced motion.
+export function usePlayOnView(ref: RefObject<Element>, ms: number, threshold = 0.45, delay = 0) {
+  const reduced = useReducedMotion();
+  const [k, setK] = useState(0);
+  useEffect(() => {
+    if (reduced) return setK(1);
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    let timer = 0;
+    const io = new IntersectionObserver(
+      (es) => {
+        if (!es.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        timer = window.setTimeout(() => {
+          const t0 = performance.now();
+          const tick = (t: number) => {
+            const v = clamp((t - t0) / ms);
+            setK(v);
+            if (v < 1) raf = requestAnimationFrame(tick);
+          };
+          raf = requestAnimationFrame(tick);
+        }, delay);
+      },
+      { threshold },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+  }, [ref, ms, threshold, delay, reduced]);
+  return k;
 }
